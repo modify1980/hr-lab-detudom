@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบฐานข้อมูลบุคลากร ห้องปฏิบัติการทางการแพทย์ รพ.สมเด็จพระยุพราชเดชอุดม</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:'Sarabun',sans-serif;
+  --xs:11px;--sm:13px;--base:15px;--lg:17px;--xl:20px;--2xl:26px;--lh:1.65;
+  --bg:#ffffff;--bg2:#F0F4FA;--bg3:#E8EFF8;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --border:#D4DCE8;--border2:#C0CCD8;
+  --blue:#185FA5;--blue-light:#E6F1FB;--blue-mid:#B5D4F4;--blue-dark:#0C447C;
+  --green:#0F6E56;--green-light:#E1F5EE;--green-mid:#9FE1CB;
+  --amber:#854F0B;--amber-light:#FAEEDA;--amber-mid:#FAC775;
+  --red:#A32D2D;--red-light:#FCEBEB;--red-mid:#F7C1C1;
+  --pink:#72243E;--pink-light:#FBEAF0;--pink-mid:#F4C0D1;
+  --purple:#5B21B6;--purple-light:#F5F0FF;--purple-mid:#C4B5FD;
+  --r-md:8px;--r-lg:12px;--r-xl:16px;
+}
+body{font-family:var(--font);font-size:var(--base);color:var(--text);line-height:var(--lh);min-height:100vh;
+  background:var(--bg3);
+  background-image:radial-gradient(ellipse at 15% 10%,rgba(24,95,165,.10) 0%,transparent 50%),radial-gradient(ellipse at 85% 90%,rgba(15,110,86,.08) 0%,transparent 50%);
+  background-attachment:fixed;}
+
+/* ===== LOGIN ===== */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;
+  background:linear-gradient(145deg,#0B3D6B 0%,#185FA5 45%,#1478C0 70%,#0E6B53 100%);
+  position:relative;overflow:hidden;}
+.login-page::before{content:'';position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,.015) 40px,rgba(255,255,255,.015) 80px);
+  pointer-events:none;}
+.login-page .circle1{position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(255,255,255,.05);top:-180px;right:-100px;pointer-events:none;}
+.login-page .circle2{position:absolute;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-120px;left:-80px;pointer-events:none;}
+.login-card{background:rgba(255,255,255,.98);border:none;border-radius:22px;padding:2.75rem 2.25rem;width:min(430px,100%);
+  box-shadow:0 20px 60px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.2);
+  position:relative;z-index:1;}
+.login-logo{width:54px;height:54px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.login-logo i{font-size:26px;color:#E6F1FB}
+.login-title{font-size:var(--xl);font-weight:700;text-align:center;margin-bottom:3px;color:var(--text)}
+.login-sub{font-size:var(--sm);color:var(--text2);text-align:center;margin-bottom:1.75rem;line-height:1.6}
+.lf{display:flex;flex-direction:column;gap:5px;margin-bottom:.9rem}
+.lf label{font-size:var(--sm);font-weight:600;color:var(--text)}
+.lf input{height:44px;padding:0 14px;font-size:var(--base);font-family:var(--font);border:1.5px solid var(--border2);border-radius:var(--r-md);background:var(--bg);color:var(--text);width:100%;transition:border-color .15s}
+.lf input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.btn-login{width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-md);font-size:var(--base);font-family:var(--font);font-weight:700;cursor:pointer;margin-top:.4rem;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s}
+.btn-login:hover{background:var(--blue-dark)}
+.divider{display:flex;align-items:center;gap:10px;margin:1.1rem 0;color:var(--text3);font-size:var(--sm)}
+.divider::before,.divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
+.btn-guest{width:100%;height:44px;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.btn-guest:hover{background:var(--bg);border-color:var(--text3)}
+.lerr{background:var(--red-light);border:0.5px solid var(--red-mid);color:var(--red);border-radius:var(--r-md);padding:.55rem .9rem;font-size:var(--sm);margin-top:.65rem;display:none;align-items:center;gap:6px}
+.login-accounts{margin-top:1.25rem;background:var(--bg2);border-radius:var(--r-lg);padding:.85rem 1rem;border:0.5px solid var(--border)}
+.lac-title{font-size:var(--xs);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.arow{display:flex;align-items:center;gap:9px;padding:.45rem .6rem;border-radius:var(--r-md);cursor:pointer;transition:background .12s}
+.arow:hover{background:var(--bg)}
+.aav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.aname{font-size:var(--sm);font-weight:600;color:var(--text)}
+.arole{font-size:var(--xs);color:var(--text3)}
+.rtag{display:inline-flex;padding:1px 7px;border-radius:100px;font-size:10px;font-weight:700;margin-left:4px}
+.r-admin{background:var(--blue-light);color:var(--blue-dark);border:0.5px solid var(--blue-mid)}
+.r-user{background:#F0F0EE;color:#5A5A57;border:0.5px solid var(--border)}
+.r-guest{background:var(--purple-light);color:var(--purple);border:0.5px solid var(--purple-mid)}
+
+/* ===== TOPBAR ===== */
+.app-wrap{max-width:1140px;margin:0 auto;padding:1.1rem 1.35rem 3rem}
+.topbar{background:linear-gradient(135deg,#0C447C 0%,#185FA5 60%,#1a7fc1 100%);border:none;padding:.75rem 1.35rem;display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;border-radius:var(--r-xl);flex-wrap:wrap;box-shadow:0 4px 20px rgba(12,68,124,.35);}
+.tb-logo{width:38px;height:38px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-logo i{font-size:20px;color:#E6F1FB}
+.tb-title{font-size:var(--base);font-weight:700;line-height:1.25;color:#ffffff;}
+.tb-sub{font-size:var(--xs);color:rgba(255,255,255,.72);margin-top:1px}
+.iso-tag{display:inline-flex;align-items:center;gap:3px;background:var(--green-light);color:var(--green);font-size:10px;padding:2px 7px;border-radius:100px;border:0.5px solid var(--green-mid);margin-left:7px;vertical-align:middle;font-weight:700}
+.sb-tag{display:inline-flex;align-items:center;gap:3px;background:var(--blue-light);color:var(--blue-dark);font-size:10px;padding:2px 7px;border-radius:100px;border:0.5px solid var(--blue-mid);margin-left:5px;vertical-align:middle;font-weight:700}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.uchip{display:flex;align-items:center;gap:8px;padding:.35rem .8rem;background:rgba(255,255,255,.15);border-radius:100px;border:0.5px solid rgba(255,255,255,.25);backdrop-filter:blur(4px);}
+.uav{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.uname{font-size:var(--sm);font-weight:700;color:#fff;line-height:1.2}
+.urole{font-size:10px;color:rgba(255,255,255,.7)}
+.btn-sm{display:flex;align-items:center;gap:5px;height:32px;padding:0 12px;border:0.5px solid rgba(255,255,255,.25);border-radius:var(--r-md);background:rgba(255,255,255,.12);font-size:var(--sm);font-family:var(--font);color:rgba(255,255,255,.9);cursor:pointer;font-weight:500;transition:all .12s;backdrop-filter:blur(4px);}
+.btn-sm:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);}
+.btn-sm.danger:hover{background:rgba(162,45,45,.85);color:#fff;border-color:rgba(247,193,193,.4);}
+
+/* ===== STATUS BAR ===== */
+.status-bar{display:flex;align-items:center;gap:8px;padding:.55rem .9rem;border-radius:var(--r-md);font-size:13px;font-weight:600;margin-bottom:.85rem}
+.sb-ok{background:var(--green-light);color:var(--green);border:0.5px solid var(--green-mid)}
+.sb-err{background:var(--red-light);color:var(--red);border:0.5px solid var(--red-mid)}
+.sb-loading{background:var(--blue-light);color:var(--blue-dark);border:0.5px solid var(--blue-mid)}
+
+/* ===== GUEST BANNER ===== */
+.guest-banner{background:var(--purple-light);border:0.5px solid var(--purple-mid);border-radius:var(--r-lg);padding:.7rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:10px;font-size:var(--sm);color:#4C1D95;font-weight:600}
+.guest-banner a{color:var(--purple);text-decoration:underline;cursor:pointer;font-weight:700}
+
+/* ===== STATS ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem}
+.scard{background:var(--bg);border-radius:var(--r-lg);padding:1.1rem 1.1rem;text-align:center;border:none;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;}
+.scard-label{font-size:var(--xs);color:var(--text2);margin-bottom:5px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:600}
+.scard-num{font-size:var(--2xl);font-weight:700}
+
+/* ===== TOOLBAR ===== */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:.85rem;flex-wrap:wrap}
+.search-box{flex:1;min-width:160px;display:flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:0 12px;height:42px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:border-color .15s,box-shadow .15s;}
+.search-box i{color:var(--text3);font-size:16px}
+.search-box input{border:none;outline:none;background:transparent;font-size:var(--sm);font-family:var(--font);color:var(--text);width:100%}
+.sel{height:40px;padding:0 12px;font-size:var(--sm);font-family:var(--font);border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text);min-width:155px}
+.btn-primary{display:flex;align-items:center;gap:6px;height:40px;padding:0 18px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);font-weight:700;cursor:pointer;transition:background .15s}
+.btn-primary:hover{background:var(--blue-dark)}
+
+/* ===== TABLE ===== */
+.section-title{font-size:var(--sm);font-weight:700;color:var(--blue);margin-bottom:.65rem;display:flex;align-items:center;gap:6px}
+.table-wrap{background:var(--bg);border:none;border-radius:var(--r-xl);overflow:hidden;margin-bottom:.5rem;box-shadow:0 2px 16px rgba(0,0,0,.08);}
+table{width:100%;border-collapse:collapse}
+thead th{background:linear-gradient(135deg,#1a3a5c 0%,#185FA5 100%);padding:10px 14px;text-align:left;font-weight:700;font-size:var(--xs);color:rgba(255,255,255,.9);border-bottom:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+tbody tr{border-bottom:0.5px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg2)}
+td{padding:9px 13px;vertical-align:middle;font-size:var(--sm)}
+.name-cell{display:flex;align-items:center;gap:9px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;overflow:hidden;border:0.5px solid var(--border)}
+.av img{width:100%;height:100%;object-fit:cover}
+.emp-name{font-weight:700;font-size:var(--sm);color:var(--text)}
+.emp-id{font-size:11px;color:var(--text3);margin-top:1px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.gov{background:var(--green-light);color:#085041;border:0.5px solid var(--green-mid)}
+.badge.moh{background:var(--amber-light);color:#633806;border:0.5px solid var(--amber-mid)}
+.badge.daily{background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-mid)}
+.mbtns{display:flex;gap:5px;align-items:center}
+.mbtn{display:flex;align-items:center;gap:4px;height:29px;padding:0 10px;border-radius:var(--r-md);border:0.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:12px;font-family:var(--font);font-weight:600;color:var(--text2);white-space:nowrap;transition:all .12s}
+.mbtn.blue{border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue-dark)}
+.mbtn.blue:hover{background:var(--blue-mid)}
+.mbtn.red:hover{background:var(--red-light);color:var(--red);border-color:var(--red-mid)}
+.mbtn.lock{opacity:.35;cursor:not-allowed;pointer-events:none}
+.own-badge{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;background:var(--green-light);color:#085041;border:0.5px solid var(--green-mid);border-radius:100px;font-size:10px;font-weight:700;margin-left:5px}
+
+/* ===== PANEL ===== */
+.inline-panel{display:none;border:none;border-radius:var(--r-xl);padding:1.6rem 1.75rem;margin-top:.5rem;background:var(--bg);box-shadow:0 4px 24px rgba(24,95,165,.12),0 0 0 1px rgba(24,95,165,.08);}
+.inline-panel.open{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.ptitle{font-size:var(--lg);font-weight:700;display:flex;align-items:center;gap:9px;color:var(--text)}
+.ptitle i{color:var(--blue)}
+.cls-btn{width:30px;height:30px;border-radius:var(--r-md);border:0.5px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .12s}
+.cls-btn:hover{background:var(--bg2)}
+.pstrip{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:var(--r-lg);padding:.75rem 1rem;margin-bottom:1.1rem;border:0.5px solid var(--border)}
+.sav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;overflow:hidden;border:0.5px solid var(--border)}
+.sav img{width:100%;height:100%;object-fit:cover}
+.sname{font-size:var(--base);font-weight:700;color:var(--text)}
+.ssub{font-size:var(--xs);color:var(--text2);margin-top:2px}
+.pct-box{margin-left:auto;text-align:right}
+.pct-lbl{font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
+.pct-bar-w{width:120px;height:6px;border-radius:100px;background:var(--border);overflow:hidden}
+.pct-fill{height:100%;border-radius:100px;background:var(--blue)}
+.mtabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.35rem;overflow-x:auto;gap:2px}
+.mtab{display:flex;align-items:center;gap:5px;padding:9px 13px;font-size:var(--sm);font-family:var(--font);font-weight:700;color:var(--text2);border:none;background:transparent;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .12s}
+.mtab:hover{color:var(--text)}
+.mtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.mtab i{font-size:14px}
+.mpane{display:none}.mpane.active{display:block}
+.slabel{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin:1.1rem 0 .65rem;display:flex;align-items:center;gap:5px}
+.slabel:first-child{margin-top:0}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.f1{grid-column:span 1}.f2{grid-column:span 2}.f3{grid-column:span 3}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:var(--sm);color:var(--text2);font-weight:700}
+.field input,.field select,.field textarea{font-size:var(--sm);font-family:var(--font);padding:0 10px;height:38px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text);width:100%;transition:border-color .12s}
+.field textarea{height:58px;padding:8px 10px;resize:vertical;line-height:var(--lh)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.1)}
+.req{color:var(--red);margin-left:2px}
+.upbox{border:1.5px dashed var(--border2);border-radius:var(--r-md);padding:.6rem .9rem;display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--bg2);font-size:var(--sm);color:var(--text2);transition:all .12s}
+.upbox:hover{border-color:var(--blue);color:var(--blue)}
+.ftag{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue-dark);font-size:11px;padding:2px 7px;border-radius:6px;border:0.5px solid var(--blue-mid);margin-top:3px;font-weight:600}
+.info-note{background:var(--blue-light);border:0.5px solid var(--blue-mid);border-radius:var(--r-md);padding:.6rem .9rem;font-size:var(--sm);color:var(--blue-dark);display:flex;gap:7px;align-items:flex-start;margin-bottom:.9rem;font-weight:600}
+.info-note i{font-size:14px;flex-shrink:0;margin-top:2px}
+.rbadge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700}
+.pass{background:var(--green-light);color:#085041;border:0.5px solid var(--green-mid)}
+.fail{background:var(--red-light);color:var(--red);border:0.5px solid var(--red-mid)}
+.pending{background:var(--amber-light);color:#633806;border:0.5px solid var(--amber-mid)}
+.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:var(--sm);font-family:var(--font);font-weight:700;color:var(--blue);border:0.5px solid var(--blue-mid);background:var(--blue-light);border-radius:var(--r-md);padding:4px 11px;cursor:pointer;margin-top:6px;transition:all .12s}
+.add-btn:hover{background:var(--blue-mid)}
+.ctable{width:100%;border-collapse:collapse;font-size:var(--sm);margin-top:.4rem}
+.ctable th{background:var(--bg2);padding:7px 10px;text-align:left;font-weight:700;font-size:var(--xs);color:var(--text2);border:0.5px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+.ctable td{padding:6px 10px;border:0.5px solid var(--border);vertical-align:middle}
+.ctable select,.ctable input{font-size:12px;font-family:var(--font);height:28px;padding:0 6px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);width:100%}
+.accrow{border:0.5px solid var(--border);border-radius:var(--r-lg);margin-bottom:6px;overflow:hidden}
+.acchead{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--bg2);cursor:pointer;font-size:var(--sm);font-weight:700;color:var(--text)}
+.accbody{display:none;padding:10px 13px;border-top:0.5px solid var(--border)}
+.accbody.open{display:block}
+.tcrd{border:0.5px solid var(--border);border-radius:var(--r-lg);padding:.85rem 1.1rem;margin-bottom:.6rem;background:var(--bg)}
+.tpill{display:inline-flex;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;margin-left:6px}
+.tp-in{background:var(--blue-light);color:var(--blue-dark);border:0.5px solid var(--blue-mid)}
+.tp-ex{background:var(--green-light);color:#085041;border:0.5px solid var(--green-mid)}
+.tp-on{background:var(--amber-light);color:#633806;border:0.5px solid var(--amber-mid)}
+.tsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:.9rem}
+.tscard{background:var(--bg2);border-radius:var(--r-lg);padding:.65rem .9rem;text-align:center;border:0.5px solid var(--border)}
+.tscard-l{font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600}
+.tscard-n{font-size:19px;font-weight:700}
+.fbar{display:flex;gap:7px;margin-bottom:.75rem;flex-wrap:wrap;align-items:center}
+.fbar input{flex:1;min-width:120px;height:34px;font-size:var(--sm);font-family:var(--font);padding:0 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text)}
+.fbar select{height:34px;font-size:12px;font-family:var(--font);padding:0 8px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text)}
+.pfooter{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1.1rem;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.schips{display:flex;gap:5px;flex-wrap:wrap}
+.btn-cancel{height:38px;padding:0 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);cursor:pointer;color:var(--text2);font-weight:600;transition:all .12s}
+.btn-cancel:hover{background:var(--bg2)}
+.btn-save{height:38px;padding:0 22px;background:var(--blue);border:none;border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.btn-save:hover{background:var(--blue-dark)}
+.sign-box{border:1px solid var(--border);border-radius:var(--r-md);padding:.7rem;text-align:center;font-size:var(--sm);color:var(--text2);background:var(--bg2);min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.tform-box{border:1px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.1rem;margin-top:.65rem;background:var(--bg2);display:none}
+.tform-box.open{display:block}
+.photo-sec{display:flex;align-items:flex-start;gap:1.25rem;background:var(--bg2);border-radius:var(--r-lg);padding:1rem 1.1rem;margin-bottom:1rem;border:0.5px solid var(--border)}
+.photo-pv{width:88px;height:108px;border-radius:var(--r-lg);border:1px solid var(--border);background:var(--bg);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.photo-pv img{width:100%;height:100%;object-fit:cover}
+.photo-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:100%;height:100%;color:var(--text3)}
+.photo-ph i{font-size:28px}
+.photo-ph span{font-size:11px;text-align:center;font-weight:600}
+.btn-uph{display:inline-flex;align-items:center;gap:5px;height:33px;padding:0 13px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);font-weight:700;cursor:pointer;transition:background .15s}
+.btn-uph:hover{background:var(--blue-dark)}
+.btn-rph{display:inline-flex;align-items:center;gap:5px;height:33px;padding:0 13px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);cursor:pointer;color:var(--text2);font-weight:600;transition:all .12s}
+.btn-rph:hover{background:var(--red-light);color:var(--red);border-color:var(--red-mid)}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg);border-radius:var(--r-xl);border:0.5px solid var(--border);padding:1.75rem;width:min(460px,94vw);box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.modal-title{font-size:var(--lg);font-weight:700;margin-bottom:1.1rem;display:flex;align-items:center;gap:8px;color:var(--text)}
+.modal-title i{color:var(--blue)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.35rem}
+.pin-changed{background:var(--green-light);border:0.5px solid var(--green-mid);color:var(--green);border-radius:var(--r-md);padding:.5rem .9rem;font-size:var(--sm);margin-top:.65rem;display:none;font-weight:600}
+.pin-box{font-size:28px;font-weight:700;letter-spacing:8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:.5rem 1.5rem;color:var(--blue);text-align:center}
+
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .fg3{grid-template-columns:1fr 1fr}
+  .f3,.f2{grid-column:span 2}
+  .topbar{gap:8px}
+  .tb-right{gap:5px}
+}
+
+/* ===== ENHANCED STYLES ===== */
+/* Stats cards gradient */
+.scard:nth-child(1){background:linear-gradient(135deg,#1a4f8a 0%,#185FA5 100%);}
+.scard:nth-child(1) .scard-label{color:rgba(255,255,255,.8);}
+.scard:nth-child(1) .scard-num{color:#fff;}
+.scard:nth-child(2){background:linear-gradient(135deg,#0a5c47 0%,#0F6E56 100%);}
+.scard:nth-child(2) .scard-label{color:rgba(255,255,255,.8);}
+.scard:nth-child(2) .scard-num{color:#fff;}
+.scard:nth-child(3){background:linear-gradient(135deg,#7a440a 0%,#BA7517 100%);}
+.scard:nth-child(3) .scard-label{color:rgba(255,255,255,.8);}
+.scard:nth-child(3) .scard-num{color:#fff;}
+.scard:nth-child(4){background:linear-gradient(135deg,#6a1f38 0%,#993556 100%);}
+.scard:nth-child(4) .scard-label{color:rgba(255,255,255,.8);}
+.scard:nth-child(4) .scard-num{color:#fff;}
+.scard::after{content:'';position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-20px;right:-20px;pointer-events:none;}
+.scard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.14);}
+
+/* Table row hover */
+tbody tr:hover{background:linear-gradient(90deg,#EEF4FB 0%,#F5F8FC 100%);}
+tbody tr:hover td:first-child{border-left:3px solid var(--blue);}
+td{transition:background .1s;}
+
+/* Badge glow */
+.badge.gov{box-shadow:0 1px 4px rgba(15,110,86,.2);}
+.badge.moh{box-shadow:0 1px 4px rgba(186,117,23,.2);}
+.badge.daily{box-shadow:0 1px 4px rgba(153,53,86,.2);}
+
+/* btn-primary pulse */
+.btn-primary{box-shadow:0 4px 14px rgba(24,95,165,.35);}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(24,95,165,.45);transform:translateY(-1px);}
+
+/* mbtn blue glow */
+.mbtn.blue{box-shadow:0 1px 6px rgba(24,95,165,.2);}
+.mbtn.blue:hover{box-shadow:0 2px 10px rgba(24,95,165,.3);}
+
+/* PANEL strip */
+.pstrip{background:linear-gradient(135deg,#E6F1FB 0%,#EEF8F4 100%);border:1px solid #C8DDF0;}
+
+/* TABS active underline */
+.mtab.active{color:var(--blue);border-bottom-color:var(--blue);background:var(--blue-light);border-radius:var(--r-md) var(--r-md) 0 0;}
+
+/* Login logo glow */
+.login-logo{box-shadow:0 4px 20px rgba(24,95,165,.4);}
+
+/* Login btn */
+.btn-login{box-shadow:0 4px 16px rgba(24,95,165,.4);}
+.btn-login:hover{box-shadow:0 6px 24px rgba(24,95,165,.55);transform:translateY(-1px);}
+
+/* Status bar */
+.status-bar{border-radius:var(--r-lg);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+
+/* Guest banner */
+.guest-banner{background:linear-gradient(135deg,#F5F0FF 0%,#EDE8FF 100%);}
+
+/* Toolbar */
+.toolbar{background:rgba(255,255,255,.7);padding:.75rem;border-radius:var(--r-xl);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.8);box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:1rem;}
+.search-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1);}
+
+/* iso-tag & sb-tag */
+.iso-tag{box-shadow:0 1px 4px rgba(15,110,86,.2);}
+.sb-tag{box-shadow:0 1px 4px rgba(24,95,165,.2);}
+
+
+/* ===== PAGINATION ===== */
+.pagination-wrap{display:flex;align-items:center;justify-content:space-between;padding:.65rem .25rem;flex-wrap:wrap;gap:8px;margin-bottom:.25rem;}
+.pg-info{font-size:var(--sm);color:var(--text2);font-weight:500;}
+.pg-info strong{color:var(--blue);}
+.pg-btns{display:flex;align-items:center;gap:4px;}
+.pg-btn{width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:var(--sm);font-family:var(--font);color:var(--text2);display:flex;align-items:center;justify-content:center;font-weight:600;transition:all .12s;}
+.pg-btn:hover:not(:disabled){background:var(--blue-light);border-color:var(--blue-mid);color:var(--blue);}
+.pg-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(24,95,165,.3);}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed;}
+.pg-btn.pg-arrow{font-size:16px;}
+.pg-sep{color:var(--text3);padding:0 2px;font-size:var(--sm);}
+.per-page-sel{height:34px;padding:0 10px;font-size:var(--sm);font-family:var(--font);border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text2);cursor:pointer;}
+/* Responsive table scroll */
+.table-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r-xl);box-shadow:0 2px 16px rgba(0,0,0,.08);}
+.table-outer table{min-width:680px;}
+@media(max-width:700px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .tb-right{gap:4px;}
+  .tb-right .btn-sm span{display:none;}
+  .pagination-wrap{flex-direction:column;align-items:flex-start;}
+}
+
+</style>
+</head>
+<body>
+<input type="file" id="photoFileInput" accept="image/*" style="display:none">
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-logo"><i class="ti ti-building-hospital"></i></div>
+      <div class="login-title">ระบบฐานข้อมูลบุคลากร</div>
+      <div class="login-sub">ห้องปฏิบัติการทางการแพทย์เทคนิคการแพทย์<br>โรงพยาบาลสมเด็จพระยุพราชเดชอุดม</div>
+      <div class="lf"><label>รหัสพนักงาน</label><input id="loginId" placeholder="เช่น MT-001" autocomplete="off"></div>
+      <div class="lf"><label>PIN (4 หลัก)</label><input id="loginPin" type="password" placeholder="••••" maxlength="4"></div>
+      <div class="circle1"></div><div class="circle2"></div>
+      <button class="btn-login" onclick="doLogin()"><i class="ti ti-login"></i>เข้าสู่ระบบ</button>
+      <div class="lerr" id="loginErr"><i class="ti ti-alert-circle"></i><span id="loginErrMsg">รหัสพนักงานหรือ PIN ไม่ถูกต้อง</span></div>
+      <div class="divider">หรือ</div>
+      <button class="btn-guest" onclick="loginGuest()"><i class="ti ti-eye"></i>ดูระบบภายใน (Guest)</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none">
+  <div class="app-wrap">
+    <div class="topbar">
+      <div class="tb-logo"><i class="ti ti-building-hospital"></i></div>
+      <div>
+        <div class="tb-title">ระบบฐานข้อมูลประวัติบุคลากร<span class="iso-tag"><i class="ti ti-certificate"></i>ISO 15189:2022</span><span class="sb-tag"><i class="ti ti-database"></i>Supabase</span></div>
+        <div class="tb-sub">ห้องปฏิบัติการทางการแพทย์เทคนิคการแพทย์ โรงพยาบาลสมเด็จพระยุพราชเดชอุดม</div>
+      </div>
+      <div class="tb-right">
+        <div class="uchip"><div class="uav" id="topUAv"></div><div><div class="uname" id="topUName"></div><div class="urole" id="topURole"></div></div></div>
+        <button class="btn-sm" id="btnChangePIN" style="display:none" onclick="openChangePIN()"><i class="ti ti-key"></i>เปลี่ยน PIN</button>
+        <button class="btn-sm" id="btnNewUser" style="display:none" onclick="openNewUserModal()"><i class="ti ti-user-plus"></i>สร้าง User ใหม่</button>
+        <button class="btn-sm danger" onclick="doLogout()"><i class="ti ti-logout"></i>ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div id="sbStatus" class="status-bar sb-loading" style="display:none"></div>
+
+    <div class="guest-banner" id="guestBanner" style="display:none">
+      <i class="ti ti-eye"></i>
+      <span>โหมด <strong>Guest (ดูอย่างเดียว)</strong> &nbsp;<a onclick="doLogout()">เข้าสู่ระบบ</a>เพื่อแก้ไขข้อมูล</span>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="section-title"><i class="ti ti-users"></i>รายชื่อบุคลากรในหน่วยงาน</div>
+    <div class="toolbar">
+      <div class="search-box"><i class="ti ti-search"></i><input type="text" id="searchInput" placeholder="ค้นหา ชื่อ ตำแหน่ง..."></div>
+      <select class="sel" id="filterType"><option value="">ทุกประเภทบุคลากร</option><option value="gov">ข้าราชการ</option><option value="moh">พนักงานกระทรวง</option><option value="daily">ลูกจ้างรายวัน</option></select>
+      <select class="per-page-sel" id="perPageSel" onchange="perPage=+this.value;curPage=1;renderTable()"><option value="15">15 / หน้า</option><option value="25" selected>25 / หน้า</option><option value="50">50 / หน้า</option><option value="100">100 / หน้า</option></select>
+      <button class="btn-primary" id="btnAddNew" style="display:none" onclick="openNewRecord()"><i class="ti ti-plus"></i>เพิ่มบุคลากร</button>
+    </div>
+
+    <div class="table-outer" id="tableOuter">
+      <table>
+        <thead><tr>
+          <th style="width:30px">#</th>
+          <th style="min-width:180px">ชื่อ — สกุล</th>
+          <th style="min-width:185px">ตำแหน่ง</th>
+          <th style="width:125px">ประเภท</th>
+          <th style="width:125px">เลขที่ ท.น.</th>
+          <th id="thManage" style="min-width:155px">จัดการข้อมูล</th>
+        </tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination-wrap" id="paginationWrap"></div>
+
+    <!-- INLINE PANEL -->
+    <div class="inline-panel" id="inlinePanel">
+      <div class="ph">
+        <div class="ptitle"><i class="ti ti-folder-open"></i><span id="panelTitle">จัดการข้อมูลบุคลากร</span></div>
+        <button class="cls-btn" onclick="closePanel()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="pstrip" id="pstrip" style="display:none">
+        <div class="sav" id="stripAv"></div>
+        <div><div class="sname" id="stripName"></div><div class="ssub" id="stripSub"></div></div>
+        <div class="pct-box">
+          <div class="pct-lbl">ความสมบูรณ์ <span id="pctNum" style="color:var(--blue)">—</span></div>
+          <div class="pct-bar-w"><div class="pct-fill" id="pctFill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="mtabs">
+        <button class="mtab active" data-tab="m1"><i class="ti ti-user"></i>ส่วนตัว</button>
+        <button class="mtab" data-tab="m2"><i class="ti ti-file-description"></i>JD</button>
+        <button class="mtab" data-tab="m3"><i class="ti ti-school"></i>ปฐมนิเทศ</button>
+        <button class="mtab" data-tab="m4"><i class="ti ti-clipboard-check"></i>Competency</button>
+        <button class="mtab" data-tab="m5"><i class="ti ti-heart-rate-monitor"></i>สุขภาพ</button>
+        <button class="mtab" data-tab="m6"><i class="ti ti-alert-triangle"></i>อุบัติเหตุ</button>
+        <button class="mtab" data-tab="m7"><i class="ti ti-award"></i>อบรม</button>
+      </div>
+
+      <div class="mpane active" id="m1">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.2 — ข้อมูลพื้นฐาน ใบอนุญาตวิชาชีพ รูปภาพประจำตัว</div>
+        <div class="photo-sec">
+          <div class="photo-pv" id="photoPv"><div class="photo-ph" id="photoPh"><i class="ti ti-user"></i><span>รูปภาพ<br>ประจำตัว</span></div></div>
+          <div style="display:flex;flex-direction:column;gap:8px;justify-content:center">
+            <div style="font-size:var(--sm);color:var(--text2);line-height:1.7"><strong style="color:var(--text)">รูปภาพประจำตัว</strong><br>.jpg .png .webp · ไม่เกิน 2MB</div>
+            <button class="btn-uph" onclick="document.getElementById('photoFileInput').click()"><i class="ti ti-upload"></i>อัปโหลดรูปภาพ</button>
+            <button class="btn-rph" id="btnRmPh" style="display:none" onclick="removePhoto()"><i class="ti ti-trash"></i>ลบรูปภาพ</button>
+            <div id="photoFN" style="font-size:11px;color:var(--text3)"></div>
+          </div>
+        </div>
+        <div class="slabel"><i class="ti ti-id-badge-2"></i>ข้อมูลส่วนตัว</div>
+        <div class="fg3">
+          <div class="field f1"><label>คำนำหน้า</label><select id="f0"><option>นาย</option><option>นาง</option><option>นางสาว</option></select></div>
+          <div class="field f1"><label>ชื่อ<span class="req">*</span></label><input id="f1"></div>
+          <div class="field f1"><label>นามสกุล<span class="req">*</span></label><input id="f2"></div>
+          <div class="field f1"><label>รหัสพนักงาน</label><input id="f3"></div>
+          <div class="field f1"><label>เลขบัตรประชาชน</label><input id="f4" placeholder="x-xxxx-xxxxx-xx-x"></div>
+          <div class="field f1"><label>วันเกิด</label><input id="f5" type="date"></div>
+          <div class="field f2"><label>ที่อยู่ปัจจุบัน</label><input id="f6"></div>
+          <div class="field f1"><label>เบอร์โทรศัพท์</label><input id="f7"></div>
+        </div>
+        <div class="slabel"><i class="ti ti-school"></i>การศึกษาและใบอนุญาต</div>
+        <div class="fg3">
+          <div class="field f2"><label>วุฒิการศึกษาสูงสุด<span class="req">*</span></label>
+            <select id="f8"><option>วิทยาศาสตรบัณฑิต (เทคนิคการแพทย์)</option><option>วิทยาศาสตรมหาบัณฑิต</option><option>แพทยศาสตรบัณฑิต</option><option>ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)</option><option>มัธยมศึกษาตอนปลาย (ม.6)</option></select>
+          </div>
+          <div class="field f1"><label>สถาบัน</label><input id="f9"></div>
+          <div class="field f1"><label>เลขที่ ท.น.</label><input id="f10" placeholder="เช่น MT-12345"></div>
+          <div class="field f1"><label>วันหมดอายุ</label><input id="f11" type="date"></div>
+        </div>
+        <div class="slabel"><i class="ti ti-briefcase"></i>การบรรจุ/จ้างงาน</div>
+        <div class="fg3">
+          <div class="field f1"><label>ตำแหน่งงาน<span class="req">*</span></label><input id="fpos"></div>
+          <div class="field f1"><label>สาขา/กลุ่มงาน</label>
+            <select id="fdept"><option>เคมีคลินิก</option><option>โลหิตวิทยา</option><option>จุลชีววิทยา</option><option>ธนาคารเลือด</option><option>ภูมิคุ้มกันวิทยา</option><option>พยาธิวิทยา</option><option>บริหารงานทั่วไป</option></select>
+          </div>
+          <div class="field f1"><label>ประเภทบุคลากร</label>
+            <select id="ftype"><option value="gov">ข้าราชการ</option><option value="moh">พนักงานกระทรวง</option><option value="daily">ลูกจ้างรายวัน</option></select>
+          </div>
+          <div class="field f1"><label>วันที่บรรจุ/จ้าง</label><input id="fdate" type="date"></div>
+        </div>
+      </div>
+
+      <div class="mpane" id="m2">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.2 c) — JD เป็นลายลักษณ์อักษร พร้อมลายเซ็นรับทราบ</div>
+        <div class="fg">
+          <div class="field f2"><label>ขอบเขตหน้าที่ความรับผิดชอบ</label><textarea id="fjd"></textarea></div>
+          <div class="field f1"><label>วันที่รับทราบ JD</label><input id="fjddate" type="date"></div>
+          <div class="field f1"><label>เวอร์ชัน JD</label><input id="fjdver"></div>
+        </div>
+        <div class="fg" style="margin-top:.5rem">
+          <div class="field f1"><label>ไฟล์ JD ที่มีลายเซ็น</label><div class="upbox"><i class="ti ti-upload"></i>อัปโหลด JD (ฟีเจอร์เร็วๆ นี้)</div></div>
+          <div class="field f1"><label>ลายเซ็นดิจิทัล</label><div class="sign-box"><i class="ti ti-pencil"></i><span>คลิกเพื่อลงนาม (ฟีเจอร์เร็วๆ นี้)</span></div></div>
+        </div>
+      </div>
+
+      <div class="mpane" id="m3">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.2 d) — หลักฐานการปฐมนิเทศ</div>
+        <div class="fg">
+          <div class="field f1"><label>วันที่ปฐมนิเทศ</label><input id="fordate" type="date"></div>
+          <div class="field f1"><label>วิทยากร/ผู้ให้การปฐมนิเทศ</label><input id="forperson"></div>
+        </div>
+        <div class="slabel"><i class="ti ti-checklist"></i>หัวข้อการปฐมนิเทศ</div>
+        <div id="oriList"></div>
+      </div>
+
+      <div class="mpane" id="m4">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.6 — ประเมิน Competency อย่างน้อยปีละ 1 ครั้ง</div>
+        <div id="compRows"></div>
+        <button class="add-btn" onclick="addComp()"><i class="ti ti-plus"></i>เพิ่มปีการประเมิน</button>
+      </div>
+
+      <div class="mpane" id="m5">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.2 h) — วัคซีน HBV และผลตรวจสุขภาพประจำปี</div>
+        <div class="slabel"><i class="ti ti-vaccine"></i>ประวัติการฉีดวัคซีน</div>
+        <table class="ctable">
+          <thead><tr><th>วัคซีน</th><th>ครั้งที่</th><th>วันที่รับ</th><th>ผลระดับภูมิ</th><th>สถานะ</th></tr></thead>
+          <tbody>
+            <tr><td>HBV (ไวรัสตับอักเสบบี)</td><td>เข็ม 1</td><td><input type="date" style="width:115px"></td><td>—</td><td><span class="rbadge pending">รอกรอก</span></td></tr>
+            <tr><td>HBV (ไวรัสตับอักเสบบี)</td><td>เข็ม 2</td><td><input type="date" style="width:115px"></td><td>—</td><td><span class="rbadge pending">รอกรอก</span></td></tr>
+            <tr><td>HBV (ไวรัสตับอักเสบบี)</td><td>เข็ม 3</td><td><input type="date" style="width:115px"></td><td><input placeholder="≥10 mIU/mL" style="width:95px"></td><td><span class="rbadge pending">รอกรอก</span></td></tr>
+            <tr><td>Influenza</td><td>ประจำปี</td><td><input type="date" style="width:115px"></td><td>—</td><td><span class="rbadge pending">รอกรอก</span></td></tr>
+          </tbody>
+        </table>
+        <div class="fg" style="margin-top:.85rem">
+          <div class="field f1"><label>ปีที่ตรวจสุขภาพ</label><input placeholder="2567"></div>
+          <div class="field f1"><label>วันที่ตรวจ</label><input type="date"></div>
+          <div class="field f2"><label>ผลสรุปสุขภาพ</label><input placeholder="เช่น ปกติทุกอย่าง"></div>
+        </div>
+      </div>
+
+      <div class="mpane" id="m6">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 8.8 — บันทึกอุบัติเหตุทุกครั้ง รวมถึง Needlestick</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem">
+          <div class="slabel" style="margin:0"><i class="ti ti-alert-triangle"></i>รายการอุบัติเหตุ</div>
+          <button class="add-btn" style="margin-top:0" onclick="addAcc()"><i class="ti ti-plus"></i>บันทึกอุบัติเหตุ</button>
+        </div>
+        <div id="accList"></div>
+      </div>
+
+      <div class="mpane" id="m7">
+        <div class="info-note"><i class="ti ti-info-circle"></i>Clause 6.2.2 e) — บันทึกการอบรมทุกหลักสูตร</div>
+        <div class="tsum" id="tsum"></div>
+        <div class="fbar">
+          <i class="ti ti-search" style="font-size:15px;color:var(--text3)"></i>
+          <input type="text" id="trainSrch" placeholder="ค้นหาหลักสูตร...">
+          <select id="trainTF"><option value="">ทุกประเภท</option><option value="external">ภายนอก</option><option value="internal">ภายใน</option><option value="online">ออนไลน์</option></select>
+          <button class="add-btn" style="margin-top:0" onclick="addTrain()"><i class="ti ti-plus"></i>เพิ่มอบรม</button>
+        </div>
+        <div class="tform-box" id="tformBox">
+          <div style="font-size:var(--sm);font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;justify-content:space-between;color:var(--text)">
+            <span id="tformTitle">เพิ่มประวัติการอบรม</span>
+            <button onclick="closeTForm()" style="border:none;background:none;cursor:pointer;color:var(--text3)"><i class="ti ti-x" style="font-size:16px"></i></button>
+          </div>
+          <div class="fg3">
+            <div class="field f3"><label>ชื่อหลักสูตร<span class="req">*</span></label><input id="tf1"></div>
+            <div class="field f1"><label>ประเภท</label><select id="tf2"><option value="external">ภายนอก</option><option value="internal">ภายใน</option><option value="online">ออนไลน์</option></select></div>
+            <div class="field f2"><label>หน่วยงาน/สถาบัน<span class="req">*</span></label><input id="tf3"></div>
+            <div class="field f2"><label>สถานที่</label><input id="tf4"></div>
+            <div class="field f1"><label>จำนวนชั่วโมง</label><input id="tf5" type="number" min="1"></div>
+            <div class="field f1"><label>วันที่เริ่ม<span class="req">*</span></label><input id="tf6" type="date"></div>
+            <div class="field f1"><label>วันที่สิ้นสุด</label><input id="tf7" type="date"></div>
+            <div class="field f1" style="padding-top:13px"><label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="tf8"> มีใบประกาศ</label></div>
+            <div class="field f2"><label>ชื่อไฟล์ใบประกาศ</label><input id="tf9" placeholder="cert_2566.pdf"></div>
+            <div class="field f3"><label>หมายเหตุ</label><input id="tf10"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:7px;margin-top:.85rem">
+            <button class="btn-cancel" onclick="closeTForm()">ยกเลิก</button>
+            <button class="btn-save" onclick="saveTForm()"><i class="ti ti-device-floppy"></i>บันทึก</button>
+          </div>
+        </div>
+        <div id="trainList"></div>
+      </div>
+
+      <div class="pfooter">
+        <div class="schips" id="schips"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-cancel" onclick="closePanel()">ยกเลิก</button>
+          <button class="btn-save" onclick="savePanel()"><i class="ti ti-device-floppy"></i>บันทึกข้อมูล</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PIN MODAL -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="ti ti-key"></i>เปลี่ยน PIN</div>
+    <div class="fg">
+      <div class="field f2"><label>PIN ปัจจุบัน</label><input type="password" id="pinOld" maxlength="4" placeholder="••••"></div>
+      <div class="field f1"></div>
+      <div class="field f1"><label>PIN ใหม่ (4 หลัก)</label><input type="password" id="pinNew1" maxlength="4" placeholder="••••"></div>
+      <div class="field f1"><label>ยืนยัน PIN ใหม่</label><input type="password" id="pinNew2" maxlength="4" placeholder="••••"></div>
+    </div>
+    <div class="pin-changed" id="pinOK"><i class="ti ti-check"></i> เปลี่ยน PIN สำเร็จแล้ว</div>
+    <div class="lerr" id="pinErr" style="margin-top:.65rem"><i class="ti ti-alert-circle"></i><span id="pinErrMsg"></span></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('pinModal').classList.remove('open')">ปิด</button>
+      <button class="btn-save" onclick="savePIN()"><i class="ti ti-check"></i>บันทึก PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW USER MODAL -->
+<div class="modal-overlay" id="newUserModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="ti ti-user-plus"></i>สร้างบัญชี User ใหม่</div>
+    <div class="fg3">
+      <div class="field f1"><label>รหัสพนักงาน<span class="req">*</span></label><input id="nuId" placeholder="เช่น MT-006"></div>
+      <div class="field f2"><label>ชื่อ-สกุล<span class="req">*</span></label><input id="nuName" placeholder="ชื่อ นามสกุล"></div>
+    </div>
+    <div style="margin-top:.85rem">
+      <label style="font-size:var(--sm);font-weight:700;color:var(--text2);display:block;margin-bottom:.45rem">PIN สำหรับ User ใหม่</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="pin-box" id="genPinDisplay">—</div>
+        <button class="btn-save" onclick="genPIN()" style="white-space:nowrap"><i class="ti ti-refresh"></i>สุ่ม PIN</button>
+      </div>
+    </div>
+    <div class="pin-changed" id="nuOK" style="margin-top:.8rem"><i class="ti ti-check"></i> สร้างบัญชีสำเร็จ! กรุณาแจ้ง PIN ให้ User</div>
+    <div class="lerr" id="nuErr" style="margin-top:.65rem"><i class="ti ti-alert-circle"></i><span id="nuErrMsg"></span></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('newUserModal').classList.remove('open')">ปิด</button>
+      <button class="btn-save" onclick="saveNewUser()"><i class="ti ti-device-floppy"></i>สร้างบัญชี</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://jkbtmeqxiznvhddwanwb.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprYnRtZXF4aXpudmhkZHdhbndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MDIxNjIsImV4cCI6MjA5NzQ3ODE2Mn0.gKl4WLyac1iJx5ffsOXu5O6ppkZtt3EmVexPlTGZLBk';
+const H={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+const sbGet=async(t,p='')=>{const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{headers:{...H,'Prefer':'return=representation'}});if(!r.ok)throw new Error(await r.text());return r.json();};
+const sbUpsert=async(t,d)=>{const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+const sbInsert=async(t,d)=>{const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+const sbUpdate=async(t,d,m)=>{const p=Object.entries(m).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+const sbDelete=async(t,m)=>{const p=Object.entries(m).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{method:'DELETE',headers:H});if(!r.ok)throw new Error(await r.text());};
+
+function showSb(msg,type='loading'){
+  const el=document.getElementById('sbStatus');
+  el.style.display='flex';
+  el.className='status-bar sb-'+type;
+  const ic={loading:'ti-loader-2',ok:'ti-circle-check',err:'ti-alert-circle'};
+  el.innerHTML=`<i class="ti ${ic[type]||'ti-info-circle'}"></i><span>${msg}</span>`;
+  if(type!=='loading')setTimeout(()=>el.style.display='none',3500);
+}
+
+const TL={gov:'ข้าราชการ',moh:'พนักงานกระทรวง',daily:'ลูกจ้างรายวัน'};
+const AVC={gov:['#E1F5EE','#085041'],moh:['#FAEEDA','#633806'],daily:['#FBEAF0','#72243E']};
+let localUsers={};let cu=null;
+
+async function loadUsers(){
+  try{const rows=await sbGet('users','select=*');rows.forEach(u=>{localUsers[u.id]={name:u.name,pin:u.pin_hash,role:u.role,av:(u.name[0]||'')+(u.name.split(' ')[1]?.[0]||''),color:u.role==='admin'?['#E6F1FB','#0C447C']:['#FAEEDA','#633806']};});}
+  catch(e){localUsers={'MT-001':{name:'สมชาย ใจดี',pin:'1234',role:'admin',av:'สช',color:['#E6F1FB','#0C447C']}};}
+}
+
+async function doLogin(){
+  const id=document.getElementById('loginId').value.trim().toUpperCase(),pin=document.getElementById('loginPin').value.trim();
+  document.getElementById('loginErr').style.display='none';
+  if(Object.keys(localUsers).length===0)await loadUsers();
+  const u=localUsers[id];
+  if(u&&u.pin===pin)loginOK(id,u);
+  else document.getElementById('loginErr').style.display='flex';
+}
+function ql(id,pin){document.getElementById('loginId').value=id;document.getElementById('loginPin').value=pin;doLogin();}
+function loginGuest(){loginOK('GUEST',{name:'ผู้เยี่ยมชม',pin:'',role:'guest',av:'G',color:['#F5F0FF','#5B21B6']});}
+
+function loginOK(id,u){
+  cu={id,name:u.name,role:u.role,av:u.av,color:u.color};
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  const ua=document.getElementById('topUAv');ua.textContent=u.av;ua.style.background=u.color[0];ua.style.color=u.color[1];
+  document.getElementById('topUName').textContent=u.name;
+  document.getElementById('topURole').textContent={admin:'ผู้ดูแลระบบ (Admin)',user:'เจ้าหน้าที่ (User)',guest:'Guest — ดูอย่างเดียว'}[u.role]||u.role;
+  document.getElementById('btnChangePIN').style.display=u.role!=='guest'?'flex':'none';
+  document.getElementById('btnNewUser').style.display=u.role==='admin'?'flex':'none';
+  document.getElementById('btnAddNew').style.display=u.role==='admin'?'flex':'none';
+  document.getElementById('guestBanner').style.display=u.role==='guest'?'flex':'none';
+  document.getElementById('thManage').style.display=u.role==='guest'?'none':'';
+  loadRecords();
+}
+function doLogout(){cu=null;closePanel();document.getElementById('mainApp').style.display='none';document.getElementById('loginPage').style.display='block';document.getElementById('loginId').value='';document.getElementById('loginPin').value='';}
+
+function openChangePIN(){['pinOld','pinNew1','pinNew2'].forEach(i=>document.getElementById(i).value='');document.getElementById('pinOK').style.display='none';document.getElementById('pinErr').style.display='none';document.getElementById('pinModal').classList.add('open');}
+async function savePIN(){
+  const old=document.getElementById('pinOld').value,n1=document.getElementById('pinNew1').value,n2=document.getElementById('pinNew2').value;
+  document.getElementById('pinErr').style.display='none';
+  if(!cu||!localUsers[cu.id])return;
+  if(localUsers[cu.id].pin!==old){document.getElementById('pinErr').style.display='flex';document.getElementById('pinErrMsg').textContent='PIN ปัจจุบันไม่ถูกต้อง';return;}
+  if(!/^\d{4}$/.test(n1)){document.getElementById('pinErr').style.display='flex';document.getElementById('pinErrMsg').textContent='PIN ต้องเป็นตัวเลข 4 หลัก';return;}
+  if(n1!==n2){document.getElementById('pinErr').style.display='flex';document.getElementById('pinErrMsg').textContent='PIN ใหม่ไม่ตรงกัน';return;}
+  try{await sbUpdate('users',{pin_hash:n1},{id:cu.id});}catch(e){}
+  localUsers[cu.id].pin=n1;document.getElementById('pinOK').style.display='flex';
+}
+
+let genPinVal='';
+function openNewUserModal(){document.getElementById('nuId').value='';document.getElementById('nuName').value='';document.getElementById('genPinDisplay').textContent='—';document.getElementById('nuOK').style.display='none';document.getElementById('nuErr').style.display='none';genPinVal='';document.getElementById('newUserModal').classList.add('open');}
+function genPIN(){genPinVal=String(Math.floor(1000+Math.random()*9000));document.getElementById('genPinDisplay').textContent=genPinVal;}
+async function saveNewUser(){
+  const id=document.getElementById('nuId').value.trim().toUpperCase(),name=document.getElementById('nuName').value.trim();
+  document.getElementById('nuErr').style.display='none';document.getElementById('nuOK').style.display='none';
+  if(!id||!name){document.getElementById('nuErr').style.display='flex';document.getElementById('nuErrMsg').textContent='กรุณากรอกรหัสพนักงานและชื่อ-สกุล';return;}
+  if(localUsers[id]){document.getElementById('nuErr').style.display='flex';document.getElementById('nuErrMsg').textContent='รหัส '+id+' มีในระบบแล้ว';return;}
+  if(!genPinVal){document.getElementById('nuErr').style.display='flex';document.getElementById('nuErrMsg').textContent='กรุณากดสุ่ม PIN ก่อน';return;}
+  try{await sbUpsert('users',{id,name,pin_hash:genPinVal,role:'user'});}catch(e){}
+  const f=name[0]||'',l=(name.split(' ')[1]||'')[0]||'';
+  localUsers[id]={name,pin:genPinVal,role:'user',av:f+l||f,color:['#E6F1FB','#0C447C']};
+  document.getElementById('nuOK').style.display='flex';
+}
+
+let records=[],cidx=-1,curComp=[],curAcc=[],curTrain=[],tIdx=-1,curPh=null,nextTID=1000;
+const isGuest=()=>cu&&cu.role==='guest';
+const canEdit=r=>{if(!cu||isGuest())return false;if(cu.role==='admin')return true;return r.id===cu.id;};
+const canDel=()=>cu&&cu.role==='admin';
+const initials=(f,l)=>(f[0]||'')+(l[0]||'');
+
+async function loadRecords(){
+  showSb('กำลังโหลดข้อมูลจาก Supabase...','loading');
+  try{
+    const rows=await sbGet('personnel','select=*&order=created_at.asc');
+    records=rows.map(r=>({_dbId:r.id,id:r.id,type:r.emp_type||'gov',prefix:r.prefix||'นาย',first:r.first_name||'',last:r.last_name||'',pos:r.position||'',dept:r.department||'เคมีคลินิก',edu:r.education||'',inst:r.institute||'',lic:r.license_no||'',licExp:r.license_exp||'',date:r.hire_date||'',phone:r.phone||'',idcard:r.id_card||'',dob:r.dob||'',addr:r.address||'',photo:r.photo_url||null,jd:r.jd||'',jddate:r.jd_date||'',jdver:r.jd_version||'',ordate:r.ori_date||'',orperson:r.ori_person||'',trainings:[],comp:[],accidents:[]}));
+    renderStats();renderTable();
+    showSb(`โหลดสำเร็จ — พบบุคลากร ${records.length} คน`,'ok');
+  }catch(e){showSb('โหลดไม่สำเร็จ: '+e.message,'err');records=[];renderStats();renderTable();}
+}
+
+function avHTML(r,s=36){
+  const c=AVC[r.type]||['#D3D1C7','#444441'];
+  if(r.photo)return `<div class="av"><img src="${r.photo}" alt="${r.first}"></div>`;
+  return `<div class="av" style="background:${c[0]};color:${c[1]};font-size:${Math.round(s*.36)}px">${initials(r.first,r.last)}</div>`;
+}
+
+function renderStats(){
+  const t=records.length,gov=records.filter(r=>r.type==='gov').length,moh=records.filter(r=>r.type==='moh').length,daily=records.filter(r=>r.type==='daily').length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="scard"><div class="scard-label"><i class="ti ti-users"></i>เจ้าหน้าที่ทั้งหมด</div><div class="scard-num" style="color:var(--blue)">${t}</div></div>
+    <div class="scard"><div class="scard-label"><i class="ti ti-badge"></i>ข้าราชการ</div><div class="scard-num" style="color:var(--green)">${gov}</div></div>
+    <div class="scard"><div class="scard-label"><i class="ti ti-id-badge-2"></i>พนักงานกระทรวง</div><div class="scard-num" style="color:var(--amber)">${moh}</div></div>
+    <div class="scard"><div class="scard-label"><i class="ti ti-calendar-user"></i>ลูกจ้างรายวัน</div><div class="scard-num" style="color:var(--pink)">${daily}</div></div>`;
+}
+
+let curPage=1,perPage=25;
+function renderTable(){
+  const q=document.getElementById('searchInput').value.toLowerCase(),ft=document.getElementById('filterType').value;
+  const allRows=records.filter(r=>(!q||(r.first+r.last+r.pos).toLowerCase().includes(q))&&(!ft||r.type===ft));
+  const total=allRows.length;
+  // reset to page 1 ถ้า filter เปลี่ยน
+  const totalPages=Math.max(1,Math.ceil(total/perPage));
+  if(curPage>totalPages)curPage=1;
+  const start=(curPage-1)*perPage;
+  const rows=allRows.slice(start,start+perPage);
+  const tb=document.getElementById('tableBody'),guest=isGuest();
+  if(!total){
+    tb.innerHTML=`<tr><td colspan="${guest?5:6}"><div style="text-align:center;padding:2.5rem;color:var(--text2)"><i class="ti ti-database-off" style="font-size:28px;display:block;margin-bottom:10px"></i>ยังไม่มีข้อมูลในฐานข้อมูล<br><small style="font-size:12px;color:var(--text3)">Admin กด "เพิ่มบุคลากร" เพื่อเริ่มต้น</small></div></td></tr>`;
+    document.getElementById('paginationWrap').innerHTML='';
+    return;
+  }
+  tb.innerHTML=rows.map((r,i)=>{
+    const ri=records.indexOf(r),isOpen=cidx===ri,isOwn=r.id===cu?.id;
+    const licDisp=guest?'<span style="color:var(--text3);font-style:italic;font-size:11px">••••••</span>':(r.lic||'—');
+    const owntag=isOwn&&!guest?`<span class="own-badge"><i class="ti ti-user-check"></i>ของฉัน</span>`:'';
+    let mCell='';
+    if(!guest){
+      let btns=canEdit(r)?`<button class="mbtn blue" onclick="openPanel(${ri})"><i class="ti ti-folder-open"></i>${isOpen?'กำลังแก้ไข':'จัดการ'}</button>`:`<button class="mbtn lock"><i class="ti ti-lock"></i>ไม่มีสิทธิ์</button>`;
+      if(canDel())btns+=`<button class="mbtn red" onclick="delRecord(${ri})"><i class="ti ti-trash"></i>ลบ</button>`;
+      mCell=`<td><div class="mbtns">${btns}</div></td>`;
+    }
+    const rowNum=start+i+1;
+    return `<tr style="${isOpen?'background:var(--bg2)':''}"><td style="color:var(--text3);font-size:12px">${rowNum}</td><td><div class="name-cell">${avHTML(r)}<div><div class="emp-name">${r.first} ${r.last}${owntag}</div><div class="emp-id">${r.id}</div></div></div></td><td style="color:var(--text)">${r.pos}</td><td><span class="badge ${r.type}">${TL[r.type]}</span></td><td style="font-size:var(--sm);color:var(--text2)">${licDisp}</td>${mCell}</tr>`;
+  }).join('');
+  // render pagination
+  renderPagination(total,totalPages);
+}
+
+function renderPagination(total,totalPages){
+  const pw=document.getElementById('paginationWrap');
+  if(totalPages<=1&&total<=perPage){pw.innerHTML='';return;}
+  const start=(curPage-1)*perPage+1;
+  const end=Math.min(curPage*perPage,total);
+  // สร้างปุ่มหน้า
+  let pages=[];
+  if(totalPages<=7){
+    for(let i=1;i<=totalPages;i++)pages.push(i);
+  }else{
+    pages=[1];
+    if(curPage>3)pages.push('...');
+    for(let i=Math.max(2,curPage-1);i<=Math.min(totalPages-1,curPage+1);i++)pages.push(i);
+    if(curPage<totalPages-2)pages.push('...');
+    pages.push(totalPages);
+  }
+  const btnHtml=pages.map(p=>{
+    if(p==='...')return`<span class="pg-sep">…</span>`;
+    return`<button class="pg-btn${p===curPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+  }).join('');
+  pw.innerHTML=`
+    <div class="pg-info">แสดง <strong>${start}–${end}</strong> จาก <strong>${total}</strong> คน</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <button class="pg-btn pg-arrow" onclick="goPage(1)" ${curPage===1?'disabled':''}><i class="ti ti-chevrons-left"></i></button>
+      <button class="pg-btn pg-arrow" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}><i class="ti ti-chevron-left"></i></button>
+      <div class="pg-btns">${btnHtml}</div>
+      <button class="pg-btn pg-arrow" onclick="goPage(${curPage+1})" ${curPage===totalPages?'disabled':''}><i class="ti ti-chevron-right"></i></button>
+      <button class="pg-btn pg-arrow" onclick="goPage(${totalPages})" ${curPage===totalPages?'disabled':''}><i class="ti ti-chevrons-right"></i></button>
+    </div>`;
+}
+
+function goPage(p){
+  const ft=document.getElementById('filterType').value;
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const total=records.filter(r=>(!q||(r.first+r.last+r.pos).toLowerCase().includes(q))&&(!ft||r.type===ft)).length;
+  const totalPages=Math.max(1,Math.ceil(total/perPage));
+  curPage=Math.min(Math.max(1,p),totalPages);
+  renderTable();
+  document.getElementById('tableOuter')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+async function delRecord(idx){
+  if(!canDel())return;
+  const r=records[idx];
+  if(!confirm('ยืนยันการลบ: '+r.first+' '+r.last+'?'))return;
+  try{
+    showSb('กำลังลบข้อมูล...','loading');
+    await sbDelete('personnel',{id:r.id});
+    if(cidx===idx)closePanel();else if(cidx>idx)cidx--;
+    records.splice(idx,1);renderStats();renderTable();
+    showSb('ลบข้อมูลสำเร็จ','ok');
+  }catch(e){showSb('ลบไม่สำเร็จ: '+e.message,'err');}
+}
+
+function setPhoto(b64){const pv=document.getElementById('photoPv'),ph=document.getElementById('photoPh'),br=document.getElementById('btnRmPh');if(b64){let img=pv.querySelector('img');if(!img){img=document.createElement('img');img.alt='รูปบุคลากร';pv.appendChild(img);}img.src=b64;if(ph)ph.style.display='none';br.style.display='inline-flex';curPh=b64;}else{const img=pv.querySelector('img');if(img)img.remove();if(ph)ph.style.display='flex';br.style.display='none';document.getElementById('photoFN').textContent='';curPh=null;}}
+function removePhoto(){setPhoto(null);}
+document.getElementById('photoFileInput').addEventListener('change',function(){const f=this.files[0];if(!f)return;if(f.size>2*1024*1024){alert('ไฟล์ใหญ่เกิน 2MB');this.value='';return;}const rd=new FileReader();rd.onload=e=>{setPhoto(e.target.result);document.getElementById('photoFN').textContent=f.name;};rd.readAsDataURL(f);this.value='';});
+
+const oriTopics=['นโยบายคุณภาพและเป้าหมายคุณภาพ','โครงสร้างองค์กรและสายการบังคับบัญชา','ขอบเขตงานและ JD','ระเบียบปฏิบัติด้านความปลอดภัย (Biosafety)','การจัดการสิ่งส่งตรวจ','การบันทึกและรายงานผล','การจัดการของเสียติดเชื้อ','การรายงานผลวิกฤต','การใช้ PPE','แผนฉุกเฉิน'];
+let oriDone=oriTopics.map(()=>true);
+function renderOri(){document.getElementById('oriList').innerHTML=oriTopics.map((t,i)=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--r-md);margin-bottom:4px;cursor:pointer;background:var(--bg);font-size:14px;color:var(--text)"><input type="checkbox" ${oriDone[i]?'checked':''} onchange="oriDone[${i}]=this.checked"><span style="flex:1">${t}</span>${oriDone[i]?'<span class="rbadge pass" style="font-size:10px"><i class="ti ti-check"></i>ผ่าน</span>':'<span class="rbadge pending" style="font-size:10px"><i class="ti ti-clock"></i>รอ</span>'}</label>`).join('');}
+function renderComp(){document.getElementById('compRows').innerHTML=`<table class="ctable"><thead><tr><th>ปีงบประมาณ</th><th>วิธีการประเมิน</th><th>งาน/สาขา</th><th>ผู้ประเมิน</th><th>ผล</th><th></th></tr></thead><tbody>${curComp.map((r,i)=>`<tr><td><input value="${r.year}" style="width:56px" onchange="curComp[${i}].year=this.value"></td><td><select style="width:145px" onchange="curComp[${i}].method=this.value"><option ${r.method==='Direct Observation'?'selected':''}>Direct Observation</option><option ${r.method==='Blind Sample Testing'?'selected':''}>Blind Sample Testing</option><option ${r.method==='Written Test'?'selected':''}>Written Test</option><option ${r.method==='Case Review'?'selected':''}>Case Review</option></select></td><td><input value="${r.area}" style="width:120px"></td><td><input value="${r.evaluator}" style="width:90px"></td><td><select style="width:80px"><option value="pass" ${r.result==='pass'?'selected':''}>ผ่าน</option><option value="fail" ${r.result==='fail'?'selected':''}>ไม่ผ่าน</option><option value="pending" ${r.result==='pending'?'selected':''}>รอ</option></select></td><td><button onclick="curComp.splice(${i},1);renderComp()" style="border:none;background:none;cursor:pointer;color:var(--text3)"><i class="ti ti-trash" style="font-size:13px"></i></button></td></tr>`).join('')}</tbody></table>`;}
+function addComp(){curComp.push({year:'2568',method:'Direct Observation',area:'',evaluator:'',result:'pending'});renderComp();}
+function renderAcc(){const c=document.getElementById('accList');if(!curAcc.length){c.innerHTML=`<div style="text-align:center;padding:1.3rem;color:var(--text2);font-size:14px;border:1.5px dashed var(--border);border-radius:var(--r-lg)"><i class="ti ti-mood-smile" style="font-size:24px;display:block;margin-bottom:6px"></i>ไม่มีประวัติอุบัติเหตุ</div>`;return;}c.innerHTML=curAcc.map((a,i)=>`<div class="accrow"><div class="acchead" onclick="tA(${i})"><span><i class="ti ti-alert-circle" style="color:var(--red);margin-right:6px"></i>${a.date||'(ยังไม่ระบุ)'} — ${a.type}</span><i class="ti ti-chevron-down" id="ar${i}" style="font-size:13px;color:var(--text3)"></i></div><div class="accbody" id="ab${i}"><div class="fg3"><div class="field f1"><label>วันที่</label><input type="date" value="${a.date}" onchange="curAcc[${i}].date=this.value;renderAcc()"></div><div class="field f1"><label>ประเภท</label><select><option>Needlestick Injury</option><option>Blood/Body Fluid Exposure</option><option>Chemical Spill</option><option>อื่นๆ</option></select></div><div class="field f1"><label>ความรุนแรง</label><select><option>เล็กน้อย</option><option>ปานกลาง</option><option>รุนแรง</option></select></div><div class="field f3"><label>รายละเอียด</label><textarea></textarea></div><div class="field f1" style="display:flex;align-items:flex-end"><button onclick="curAcc.splice(${i},1);renderAcc()" style="height:34px;padding:0 12px;background:var(--red-light);border:0.5px solid var(--red-mid);color:var(--red);border-radius:var(--r-md);cursor:pointer;font-size:13px;font-family:var(--font)"><i class="ti ti-trash"></i> ลบ</button></div></div></div></div>`).join('');}
+function tA(i){const b=document.getElementById('ab'+i),a=document.getElementById('ar'+i);b.classList.toggle('open');a.style.transform=b.classList.contains('open')?'rotate(180deg)':'';}
+function addAcc(){curAcc.push({date:'',type:'Needlestick Injury'});renderAcc();setTimeout(()=>tA(curAcc.length-1),30);}
+function tpill(t){if(t==='internal')return '<span class="tpill tp-in">ภายใน</span>';if(t==='external')return '<span class="tpill tp-ex">ภายนอก</span>';return '<span class="tpill tp-on">ออนไลน์</span>';}
+function renderTSum(){const tot=curTrain.length,hrs=curTrain.reduce((s,t)=>s+Number(t.hours||0),0),cert=curTrain.filter(t=>t.cert).length,ty=new Date().getFullYear(),tyn=curTrain.filter(t=>t.dateStart&&new Date(t.dateStart).getFullYear()===ty).length;document.getElementById('tsum').innerHTML=`<div class="tscard"><div class="tscard-l">หลักสูตรทั้งหมด</div><div class="tscard-n" style="color:var(--blue)">${tot}</div></div><div class="tscard"><div class="tscard-l">ชั่วโมงรวม</div><div class="tscard-n" style="color:var(--green)">${hrs}</div></div><div class="tscard"><div class="tscard-l">มีใบประกาศ</div><div class="tscard-n" style="color:var(--amber)">${cert}</div></div><div class="tscard"><div class="tscard-l">ปีนี้</div><div class="tscard-n" style="color:var(--pink)">${tyn}</div></div>`;}
+function renderTList(){const q=(document.getElementById('trainSrch').value||'').toLowerCase(),ft=document.getElementById('trainTF').value;const list=curTrain.filter(t=>(!q||(t.name+t.org).toLowerCase().includes(q))&&(!ft||t.type===ft));const c=document.getElementById('trainList');if(!list.length){c.innerHTML=`<div style="text-align:center;padding:1.1rem;color:var(--text2);font-size:14px;border:1.5px dashed var(--border);border-radius:var(--r-lg)"><i class="ti ti-search-off" style="font-size:20px;display:block;margin-bottom:5px"></i>ไม่พบข้อมูลการอบรม</div>`;return;}c.innerHTML=list.map(t=>{const ri=curTrain.indexOf(t);const ds=t.dateStart?new Date(t.dateStart).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';return `<div class="tcrd"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.45rem"><div><div style="font-size:14px;font-weight:700;color:var(--text)">${t.name}${tpill(t.type)}</div><div style="font-size:12px;color:var(--text2);margin-top:2px"><i class="ti ti-building" style="font-size:11px"></i> ${t.org} · <i class="ti ti-map-pin" style="font-size:11px"></i> ${t.place||'—'}</div></div><div style="display:flex;gap:4px"><button class="mbtn blue" style="height:27px;padding:0 8px" onclick="editTrain(${ri})"><i class="ti ti-edit" style="font-size:11px"></i></button><button class="mbtn red" style="height:27px;padding:0 8px" onclick="delTrain(${ri})"><i class="ti ti-trash" style="font-size:11px"></i></button></div></div><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2);border-top:0.5px solid var(--border);padding-top:.45rem"><span><i class="ti ti-calendar" style="font-size:11px"></i> ${ds}</span><span><i class="ti ti-clock" style="font-size:11px"></i> ${t.hours} ชม.</span>${t.cert?'<span class="rbadge pass" style="font-size:10px"><i class="ti ti-certificate"></i>มีใบประกาศ</span>':'<span class="rbadge pending" style="font-size:10px">ไม่มีใบประกาศ</span>'}${t.certFile?`<span class="ftag" style="margin:0"><i class="ti ti-file-check"></i>${t.certFile}</span>`:''}</div></div>`;}).join('');}
+function rT(){renderTSum();renderTList();}
+function addTrain(){tIdx=-1;document.getElementById('tformTitle').textContent='เพิ่มประวัติการอบรม';['tf1','tf3','tf4','tf9','tf10'].forEach(id=>document.getElementById(id).value='');['tf5','tf6','tf7'].forEach(id=>document.getElementById(id).value='');document.getElementById('tf2').value='external';document.getElementById('tf8').checked=false;document.getElementById('tformBox').classList.add('open');}
+function editTrain(idx){tIdx=idx;const t=curTrain[idx];document.getElementById('tformTitle').textContent='แก้ไขประวัติการอบรม';document.getElementById('tf1').value=t.name||'';document.getElementById('tf2').value=t.type||'external';document.getElementById('tf3').value=t.org||'';document.getElementById('tf4').value=t.place||'';document.getElementById('tf5').value=t.hours||'';document.getElementById('tf6').value=t.dateStart||'';document.getElementById('tf7').value=t.dateEnd||'';document.getElementById('tf8').checked=!!t.cert;document.getElementById('tf9').value=t.certFile||'';document.getElementById('tf10').value=t.note||'';document.getElementById('tformBox').classList.add('open');}
+function delTrain(idx){if(confirm('ลบ: '+curTrain[idx].name+'?')){curTrain.splice(idx,1);rT();}}
+function closeTForm(){document.getElementById('tformBox').classList.remove('open');}
+function saveTForm(){const name=document.getElementById('tf1').value.trim(),org=document.getElementById('tf3').value.trim(),ds=document.getElementById('tf6').value;if(!name||!org||!ds){alert('กรุณากรอก ชื่อหลักสูตร หน่วยงาน และวันที่เริ่ม');return;}const rec={id:tIdx>=0?curTrain[tIdx].id:nextTID++,name,type:document.getElementById('tf2').value,org,place:document.getElementById('tf4').value,dateStart:ds,dateEnd:document.getElementById('tf7').value,hours:Number(document.getElementById('tf5').value)||0,cert:document.getElementById('tf8').checked,certFile:document.getElementById('tf9').value,note:document.getElementById('tf10').value};if(tIdx>=0){curTrain[tIdx]=rec;}else{curTrain.push(rec);}closeTForm();rT();}
+document.getElementById('trainSrch').addEventListener('input',renderTList);
+document.getElementById('trainTF').addEventListener('change',renderTList);
+
+function openNewRecord(){
+  if(!cu||cu.role!=='admin')return;
+  if(cidx===-2){closePanel();return;}
+  cidx=-2;
+  document.getElementById('panelTitle').textContent='เพิ่มข้อมูลบุคลากรใหม่';
+  document.getElementById('pstrip').style.display='none';
+  document.getElementById('schips').innerHTML='';
+  clearForm({id:'',type:'gov',prefix:'นาย',first:'',last:'',pos:'',dept:'เคมีคลินิก',edu:'วิทยาศาสตรบัณฑิต (เทคนิคการแพทย์)',inst:'',lic:'',licExp:'',date:'',phone:'',photo:null,jd:'',jddate:'',jdver:'v1.0',ordate:'',orperson:'',trainings:[],comp:[],accidents:[]});
+  document.getElementById('inlinePanel').classList.add('open');
+  document.getElementById('inlinePanel').scrollIntoView({behavior:'smooth',block:'start'});
+  renderTable();
+}
+
+function openPanel(idx){
+  if(!cu||isGuest())return;
+  const r=records[idx];
+  if(!canEdit(r)){alert('คุณมีสิทธิ์แก้ไขได้เฉพาะข้อมูลของตัวเองเท่านั้น');return;}
+  if(cidx===idx){closePanel();return;}
+  cidx=idx;
+  document.getElementById('panelTitle').textContent='จัดการข้อมูลบุคลากร';
+  const ps=document.getElementById('pstrip');ps.style.display='flex';
+  const sa=document.getElementById('stripAv');sa.innerHTML='';
+  if(r.photo){const img=document.createElement('img');img.src=r.photo;img.alt=r.first;img.style.cssText='width:100%;height:100%;object-fit:cover';sa.appendChild(img);sa.style.background='transparent';}
+  else{const c=AVC[r.type]||['#E6F1FB','#0C447C'];sa.style.background=c[0];sa.style.color=c[1];sa.textContent=initials(r.first,r.last);}
+  document.getElementById('stripName').textContent=r.first+' '+r.last;
+  document.getElementById('stripSub').textContent=r.id+' · '+r.pos;
+  const pct=Math.round([!!r.lic,!!r.jddate,!!r.ordate,r.comp&&r.comp.length>0,true,true,true].filter(Boolean).length/7*100);
+  document.getElementById('pctNum').textContent=pct+'%';document.getElementById('pctFill').style.width=pct+'%';
+  document.getElementById('schips').innerHTML=[['ใบอนุญาต',!!r.lic],['JD',!!r.jddate],['ปฐมนิเทศ',!!r.ordate],['Competency',r.comp&&r.comp.length>0],['สุขภาพ',true],['อุบัติเหตุ',true],['อบรม',true]].map(([l,ok])=>`<span class="rbadge ${ok?'pass':'pending'}" style="font-size:10px"><i class="ti ti-${ok?'check':'clock'}"></i>${l}</span>`).join('');
+  clearForm(r);
+  document.getElementById('inlinePanel').classList.add('open');
+  document.getElementById('inlinePanel').scrollIntoView({behavior:'smooth',block:'start'});
+  renderTable();
+}
+
+function clearForm(rec){
+  setPhoto(rec.photo||null);curPh=rec.photo||null;
+  ['f0','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','fpos','fdept','ftype','fdate','fjd','fjddate','fjdver','fordate','forperson'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const map={f0:'prefix',f1:'first',f2:'last',f3:'id',f4:'idcard',f5:'dob',f6:'addr',f7:'phone',f8:'edu',f9:'inst',f10:'lic',f11:'licExp',fpos:'pos',fdept:'dept',ftype:'type',fdate:'date',fjd:'jd',fjddate:'jddate',fjdver:'jdver',fordate:'ordate',forperson:'orperson'};
+    el.value=rec[map[id]]||'';
+  });
+  curComp=JSON.parse(JSON.stringify(rec.comp||[]));renderComp();
+  curAcc=JSON.parse(JSON.stringify(rec.accidents||[]));renderAcc();
+  curTrain=JSON.parse(JSON.stringify(rec.trainings||[]));rT();
+  oriDone=oriTopics.map(()=>true);renderOri();
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.mtab[data-tab="m1"]').classList.add('active');
+  document.getElementById('m1').classList.add('active');
+}
+
+function closePanel(){cidx=-1;document.getElementById('inlinePanel').classList.remove('open');closeTForm();setPhoto(null);renderTable();}
+
+async function savePanel(){
+  if(!cu||isGuest())return;
+  const first=document.getElementById('f1').value.trim(),last=document.getElementById('f2').value.trim(),pos=document.getElementById('fpos').value.trim();
+  if(!first||!last||!pos){alert('กรุณากรอก ชื่อ นามสกุล และตำแหน่ง');return;}
+  const isNew=cidx===-2;
+  const recId=isNew?(document.getElementById('f3').value.trim()||'P'+Date.now()):records[cidx].id;
+  const local={id:recId,_dbId:recId,prefix:document.getElementById('f0').value,first,last,idcard:document.getElementById('f4').value,dob:document.getElementById('f5').value,addr:document.getElementById('f6').value,phone:document.getElementById('f7').value,edu:document.getElementById('f8').value,inst:document.getElementById('f9').value,lic:document.getElementById('f10').value,licExp:document.getElementById('f11').value,pos,dept:document.getElementById('fdept').value,type:document.getElementById('ftype').value,date:document.getElementById('fdate').value,jd:document.getElementById('fjd').value,jddate:document.getElementById('fjddate').value,jdver:document.getElementById('fjdver').value,ordate:document.getElementById('fordate').value,orperson:document.getElementById('forperson').value,comp:curComp,accidents:curAcc,trainings:curTrain,licFile:'',jdFile:'',photo:curPh};
+  const dbRow={id:recId,prefix:local.prefix,first_name:local.first,last_name:local.last,position:local.pos,department:local.dept,emp_type:local.type,hire_date:local.date||null,phone:local.phone,id_card:local.idcard,dob:local.dob||null,address:local.addr,education:local.edu,institute:local.inst,license_no:local.lic,license_exp:local.licExp||null,jd:local.jd,jd_date:local.jddate||null,jd_version:local.jdver,ori_date:local.ordate||null,ori_person:local.orperson,photo_url:local.photo||null};
+  try{
+    showSb('กำลังบันทึกข้อมูลไปยัง Supabase...','loading');
+    await sbUpsert('personnel',dbRow);
+    if(!isNew){try{await sbDelete('competency',{personnel_id:recId});}catch(e){}try{await sbDelete('trainings',{personnel_id:recId});}catch(e){}try{await sbDelete('accidents',{personnel_id:recId});}catch(e){}}
+    if(curComp.length>0)await sbInsert('competency',curComp.map(c=>({personnel_id:recId,year:c.year,method:c.method,area:c.area,evaluator:c.evaluator,result:c.result})));
+    if(curTrain.length>0)await sbInsert('trainings',curTrain.map(t=>({personnel_id:recId,name:t.name,type:t.type,org:t.org,place:t.place,date_start:t.dateStart||null,date_end:t.dateEnd||null,hours:t.hours,has_cert:t.cert,cert_file:t.certFile,note:t.note})));
+    if(curAcc.length>0)await sbInsert('accidents',curAcc.map(a=>({personnel_id:recId,date:a.date||null,type:a.type,severity:a.severity||'เล็กน้อย',detail:a.detail||''})));
+    if(isNew)records.push(local);else records[cidx]=local;
+    showSb('บันทึกสำเร็จ ✓ ข้อมูลเก็บใน Supabase เรียบร้อย','ok');
+    closePanel();renderStats();renderTable();
+  }catch(e){
+    showSb('บันทึกไม่สำเร็จ: '+e.message,'err');
+    if(isNew)records.push(local);else records[cidx]=local;
+    closePanel();renderStats();renderTable();
+  }
+}
+
+document.querySelectorAll('.mtab').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');});});
+document.getElementById('searchInput').addEventListener('input',()=>{curPage=1;renderTable();});
+document.getElementById('filterType').addEventListener('change',()=>{curPage=1;renderTable();});
+document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginId').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
+
+loadUsers();
+</script>
+</body>
+</html>

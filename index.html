@@ -627,6 +627,88 @@ td{transition:background .1s;}
   .field input,.field select,.field textarea{min-height:44px;font-size:16px;}
 }
 
+
+/* ===== FIX STATS NUMBERS ===== */
+.scard-num{font-size:var(--2xl);font-weight:700;color:#fff !important;text-shadow:0 2px 8px rgba(0,0,0,.25);}
+.scard-label{font-size:var(--xs);color:rgba(255,255,255,.85) !important;margin-bottom:6px;
+  display:flex;align-items:center;justify-content:center;gap:4px;font-weight:600;}
+.scard-label i{color:rgba(255,255,255,.75);}
+.scard:nth-child(1) .scard-num{color:#fff !important;}
+.scard:nth-child(2) .scard-num{color:#fff !important;}
+.scard:nth-child(3) .scard-num{color:#fff !important;}
+.scard:nth-child(4) .scard-num{color:#fff !important;}
+
+/* ===== TRAINING TAB ENHANCED ===== */
+/* Summary cards สีสดใส */
+.tsum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;}
+.tscard{border-radius:var(--r-lg);padding:.85rem 1rem;text-align:center;border:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);position:relative;overflow:hidden;transition:transform .15s;}
+.tscard:hover{transform:translateY(-2px);}
+.tscard:nth-child(1){background:linear-gradient(135deg,#1a4f8a,#185FA5);}
+.tscard:nth-child(2){background:linear-gradient(135deg,#0a5c47,#0F6E56);}
+.tscard:nth-child(3){background:linear-gradient(135deg,#7a440a,#BA7517);}
+.tscard:nth-child(4){background:linear-gradient(135deg,#6a1f38,#993556);}
+.tscard::after{content:'';position:absolute;width:60px;height:60px;border-radius:50%;
+  background:rgba(255,255,255,.08);bottom:-15px;right:-15px;pointer-events:none;}
+.tscard-l{font-size:10px;color:rgba(255,255,255,.8);margin-bottom:4px;font-weight:600;font-family:var(--font);}
+.tscard-n{font-size:22px;font-weight:700;color:#fff;font-family:var(--font);}
+
+/* Filter bar */
+.fbar{background:var(--bg2);border-radius:var(--r-xl);padding:.75rem 1rem;
+  border:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.85rem;}
+.fbar input{flex:1;min-width:140px;height:36px;font-size:var(--sm);font-family:var(--font);
+  padding:0 10px;border:1.5px solid var(--border);border-radius:var(--r-md);
+  background:var(--bg);color:var(--text);transition:border-color .15s;}
+.fbar input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.1);}
+.fbar select{height:36px;font-size:12px;font-family:var(--font);padding:0 8px;
+  border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--bg);color:var(--text);}
+
+/* Training form box */
+.tform-box{background:linear-gradient(135deg,#f0f6ff,#e8f4fd);
+  border:1.5px solid var(--blue-mid);border-radius:var(--r-xl);
+  padding:1.25rem 1.35rem;margin-bottom:1rem;
+  box-shadow:0 4px 16px rgba(24,95,165,.1);}
+.tform-box .fg3{background:transparent;border:none;box-shadow:none;padding:0;}
+
+/* Training card - new style */
+.tcrd{border:none;border-radius:var(--r-xl);padding:0;margin-bottom:.75rem;
+  background:var(--bg);overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);transition:all .15s;}
+.tcrd:hover{box-shadow:0 6px 20px rgba(24,95,165,.13);transform:translateY(-1px);}
+
+/* Training card inner */
+.tcrd-inner{padding:.9rem 1.1rem;}
+.tcrd-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.5rem;}
+.tcrd-footer{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--text2);
+  border-top:1px solid var(--border);padding-top:.5rem;margin-top:.4rem;}
+
+/* Type pill enhanced */
+.tpill{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle;}
+.tp-in{background:var(--blue-light);color:var(--blue-dark);border:0.5px solid var(--blue-mid);}
+.tp-ex{background:var(--green-light);color:#085041;border:0.5px solid var(--green-mid);}
+.tp-on{background:var(--amber-light);color:#633806;border:0.5px solid var(--amber-mid);}
+
+/* Add train btn */
+#m7 .add-btn{background:linear-gradient(135deg,var(--blue-light),#ddeeff);
+  border-color:var(--blue-mid);color:var(--blue);font-weight:700;
+  box-shadow:0 2px 8px rgba(24,95,165,.15);}
+#m7 .add-btn:hover{background:linear-gradient(135deg,var(--blue-mid),#b5d4f4);transform:translateY(-1px);}
+
+/* Empty training state */
+#trainList > div{background:linear-gradient(135deg,#f8fafd,#eef4fb);
+  border:2px dashed var(--blue-mid);border-radius:var(--r-xl);
+  padding:2rem;color:var(--blue-dark);}
+
+/* training card left accent by type */
+.tcrd[data-type="external"]{border-left:4px solid var(--green);}
+.tcrd[data-type="internal"]{border-left:4px solid var(--blue);}
+.tcrd[data-type="online"]{border-left:4px solid #854F0B;}
+
+@media(max-width:480px){
+  .tsum{grid-template-columns:1fr 1fr;}
+  .tscard-n{font-size:18px;}
+}
+
 </style>
 </head>
 <body>
@@ -1127,7 +1209,39 @@ function tA(i){const b=document.getElementById('ab'+i),a=document.getElementById
 function addAcc(){curAcc.push({date:'',type:'Needlestick Injury'});renderAcc();setTimeout(()=>tA(curAcc.length-1),30);}
 function tpill(t){if(t==='internal')return '<span class="tpill tp-in">ภายใน</span>';if(t==='external')return '<span class="tpill tp-ex">ภายนอก</span>';return '<span class="tpill tp-on">ออนไลน์</span>';}
 function renderTSum(){const tot=curTrain.length,hrs=curTrain.reduce((s,t)=>s+Number(t.hours||0),0),cert=curTrain.filter(t=>t.cert).length,ty=new Date().getFullYear(),tyn=curTrain.filter(t=>t.dateStart&&new Date(t.dateStart).getFullYear()===ty).length;document.getElementById('tsum').innerHTML=`<div class="tscard"><div class="tscard-l">หลักสูตรทั้งหมด</div><div class="tscard-n" style="color:var(--blue)">${tot}</div></div><div class="tscard"><div class="tscard-l">ชั่วโมงรวม</div><div class="tscard-n" style="color:var(--green)">${hrs}</div></div><div class="tscard"><div class="tscard-l">มีใบประกาศ</div><div class="tscard-n" style="color:var(--amber)">${cert}</div></div><div class="tscard"><div class="tscard-l">ปีนี้</div><div class="tscard-n" style="color:var(--pink)">${tyn}</div></div>`;}
-function renderTList(){const q=(document.getElementById('trainSrch').value||'').toLowerCase(),ft=document.getElementById('trainTF').value;const list=curTrain.filter(t=>(!q||(t.name+t.org).toLowerCase().includes(q))&&(!ft||t.type===ft));const c=document.getElementById('trainList');if(!list.length){c.innerHTML=`<div style="text-align:center;padding:1.1rem;color:var(--text2);font-size:14px;border:1.5px dashed var(--border);border-radius:var(--r-lg)"><i class="ti ti-search-off" style="font-size:20px;display:block;margin-bottom:5px"></i>ไม่พบข้อมูลการอบรม</div>`;return;}c.innerHTML=list.map(t=>{const ri=curTrain.indexOf(t);const ds=t.dateStart?new Date(t.dateStart).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';return `<div class="tcrd"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:.45rem"><div><div style="font-size:14px;font-weight:700;color:var(--text)">${t.name}${tpill(t.type)}</div><div style="font-size:12px;color:var(--text2);margin-top:2px"><i class="ti ti-building" style="font-size:11px"></i> ${t.org} · <i class="ti ti-map-pin" style="font-size:11px"></i> ${t.place||'—'}</div></div><div style="display:flex;gap:4px"><button class="mbtn blue" style="height:27px;padding:0 8px" onclick="editTrain(${ri})"><i class="ti ti-edit" style="font-size:11px"></i></button><button class="mbtn red" style="height:27px;padding:0 8px" onclick="delTrain(${ri})"><i class="ti ti-trash" style="font-size:11px"></i></button></div></div><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2);border-top:0.5px solid var(--border);padding-top:.45rem"><span><i class="ti ti-calendar" style="font-size:11px"></i> ${ds}</span><span><i class="ti ti-clock" style="font-size:11px"></i> ${t.hours} ชม.</span>${t.cert?'<span class="rbadge pass" style="font-size:10px"><i class="ti ti-certificate"></i>มีใบประกาศ</span>':'<span class="rbadge pending" style="font-size:10px">ไม่มีใบประกาศ</span>'}${t.certFile?`<span class="ftag" style="margin:0"><i class="ti ti-file-check"></i>${t.certFile}</span>`:''}</div></div>`;}).join('');}
+function renderTList(){const q=(document.getElementById('trainSrch').value||'').toLowerCase(),ft=document.getElementById('trainTF').value;const list=curTrain.filter(t=>(!q||(t.name+t.org).toLowerCase().includes(q))&&(!ft||t.type===ft));const c=document.getElementById('trainList');if(!list.length){c.innerHTML=`<div style="text-align:center;padding:1.1rem;color:var(--text2);font-size:14px;border:1.5px dashed var(--border);border-radius:var(--r-lg)"><i class="ti ti-search-off" style="font-size:20px;display:block;margin-bottom:5px"></i>ไม่พบข้อมูลการอบรม</div>`;return;}c.innerHTML=list.map(t=>{const ri=curTrain.indexOf(t);const ds=t.dateStart?new Date(t.dateStart).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';const typeLabel={external:'ภายนอก',internal:'ภายใน',online:'ออนไลน์'};
+    return `<div class="tcrd" data-type="${t.type}">
+      <div class="tcrd-inner">
+        <div class="tcrd-header">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--text);line-height:1.4">
+              ${t.name}${tpill(t.type)}
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span><i class="ti ti-building" style="font-size:11px"></i> ${t.org}</span>
+              ${t.place?`<span>·</span><span><i class="ti ti-map-pin" style="font-size:11px"></i> ${t.place}</span>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button class="mbtn blue" style="height:28px;padding:0 9px" onclick="editTrain(${ri})">
+              <i class="ti ti-edit" style="font-size:12px"></i>
+            </button>
+            <button class="mbtn red" style="height:28px;padding:0 9px" onclick="delTrain(${ri})">
+              <i class="ti ti-trash" style="font-size:12px"></i>
+            </button>
+          </div>
+        </div>
+        <div class="tcrd-footer">
+          <span><i class="ti ti-calendar" style="font-size:11px"></i> ${ds}</span>
+          <span><i class="ti ti-clock" style="font-size:11px"></i> ${t.hours} ชม.</span>
+          ${t.cert
+            ? '<span class="rbadge pass" style="font-size:10px"><i class="ti ti-certificate"></i>มีใบประกาศ</span>'
+            : '<span class="rbadge" style="font-size:10px;background:var(--bg2);color:var(--text3);border:0.5px solid var(--border)">ไม่มีใบประกาศ</span>'
+          }
+          ${t.certFile?`<span class="ftag" style="margin:0;font-size:10px"><i class="ti ti-file-check"></i>${t.certFile}</span>`:''}
+        </div>
+      </div>
+    </div>`;}).join('');}
 function rT(){renderTSum();renderTList();}
 function addTrain(){tIdx=-1;document.getElementById('tformTitle').textContent='เพิ่มประวัติการอบรม';['tf1','tf3','tf4','tf9','tf10'].forEach(id=>document.getElementById(id).value='');['tf5','tf6','tf7'].forEach(id=>document.getElementById(id).value='');document.getElementById('tf2').value='external';document.getElementById('tf8').checked=false;document.getElementById('tformBox').classList.add('open');}
 function editTrain(idx){tIdx=idx;const t=curTrain[idx];document.getElementById('tformTitle').textContent='แก้ไขประวัติการอบรม';document.getElementById('tf1').value=t.name||'';document.getElementById('tf2').value=t.type||'external';document.getElementById('tf3').value=t.org||'';document.getElementById('tf4').value=t.place||'';document.getElementById('tf5').value=t.hours||'';document.getElementById('tf6').value=t.dateStart||'';document.getElementById('tf7').value=t.dateEnd||'';document.getElementById('tf8').checked=!!t.cert;document.getElementById('tf9').value=t.certFile||'';document.getElementById('tf10').value=t.note||'';document.getElementById('tformBox').classList.add('open');}

@@ -1,0 +1,23 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 8 */3 * *'  # รันทุก 3 วัน เวลา 08:00 UTC (15:00 น. ไทย)
+  workflow_dispatch:         # รันด้วยตนเองได้
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://jkbtmeqxiznvhddwanwb.supabase.co/rest/v1/users?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprYnRtZXF4aXpudmhkZHdhbndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MDIxNjIsImV4cCI6MjA5NzQ3ODE2Mn0.gKl4WLyac1iJx5ffsOXu5O6ppkZtt3EmVexPlTGZLBk" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprYnRtZXF4aXpudmhkZHdhbndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MDIxNjIsImV4cCI6MjA5NzQ3ODE2Mn0.gKl4WLyac1iJx5ffsOXu5O6ppkZtt3EmVexPlTGZLBk")
+          echo "Supabase response: $response"
+          if [ "$response" = "200" ]; then
+            echo "✅ Supabase is alive!"
+          else
+            echo "⚠️ Response code: $response"
+          fi

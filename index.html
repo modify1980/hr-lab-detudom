@@ -790,6 +790,22 @@ td{transition:background .1s;}
   border-radius:100px;font-size:11px;font-weight:700;
   background:var(--green-light);color:var(--green);border:.5px solid var(--green-mid);}
 
+
+/* ===== FILE UPLOAD ===== */
+.upload-btn{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 12px;
+  background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue-mid);
+  border-radius:var(--r-md);font-size:var(--sm);font-family:var(--font);font-weight:700;
+  cursor:pointer;transition:all .15s;}
+.upload-btn:hover{background:var(--blue-mid);transform:translateY(-1px);}
+.upload-btn.uploading{opacity:.6;cursor:wait;}
+.file-link{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+  background:var(--green-light);color:var(--green);border:0.5px solid var(--green-mid);
+  border-radius:var(--r-md);font-size:12px;font-weight:600;text-decoration:none;}
+.file-link:hover{background:var(--green-mid);}
+.file-remove{width:20px;height:20px;border:none;background:var(--red-light);color:var(--red);
+  border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;margin-left:4px;vertical-align:middle;}
+
 </style>
 </head>
 <body>
@@ -1110,7 +1126,102 @@ async function doLogin(){
   // โหลด users ถ้ายังไม่มี (มี timeout กัน hang)
   if(Object.keys(localUsers).length===0){
     try{
-      const p=loadUsers();
+      const p=
+/* ===== SUPABASE STORAGE UPLOAD ===== */
+async function uploadFileToStorage(file, folder, personnelId){
+  // สร้างชื่อไฟล์ unique
+  const ext = file.name.split('.').pop();
+  const timestamp = Date.now();
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = `${folder}/${personnelId}_${timestamp}_${safeName}`;
+  
+  const res = await fetch(`${SB_URL}/storage/v1/object/health-files/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+  
+  if(!res.ok){
+    const err = await res.text();
+    throw new Error('Upload failed: ' + err);
+  }
+  
+  // คืน public URL
+  const publicUrl = `${SB_URL}/storage/v1/object/public/health-files/${path}`;
+  return { path, url: publicUrl, name: file.name };
+}
+
+async function deleteFileFromStorage(path){
+  try{
+    await fetch(`${SB_URL}/storage/v1/object/health-files/${path}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+  }catch(e){ console.warn('Delete file error:', e); }
+}
+
+// อัปโหลดไฟล์ผลตรวจสุขภาพ
+async function uploadHealthFile(i, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  if(file.size > 10*1024*1024){ alert('ไฟล์ใหญ่เกิน 10MB'); inputEl.value=''; return; }
+  
+  const btn = inputEl.previousElementSibling;
+  if(btn){ btn.classList.add('uploading'); btn.innerHTML='<i class="ti ti-loader-2"></i>กำลังอัป...'; }
+  showSb('กำลังอัปโหลดไฟล์...','loading');
+  
+  try{
+    const recId = cidx >= 0 ? records[cidx].id : 'temp';
+    const result = await uploadFileToStorage(file, 'health-checks', recId);
+    curHealthChecks[i].file = result.name;
+    curHealthChecks[i].fileUrl = result.url;
+    curHealthChecks[i].filePath = result.path;
+    renderHealthCheckList();
+    showSb('อัปโหลดไฟล์สำเร็จ ✓','ok');
+  }catch(e){
+    showSb('อัปโหลดไม่สำเร็จ: ' + e.message,'err');
+    alert('อัปโหลดไม่สำเร็จ: ' + e.message);
+  }
+  inputEl.value = '';
+}
+
+// อัปโหลดไฟล์วัคซีน (ถ้าต้องการเพิ่มในอนาคต)
+async function uploadVaccineFile(i, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  if(file.size > 10*1024*1024){ alert('ไฟล์ใหญ่เกิน 10MB'); inputEl.value=''; return; }
+  showSb('กำลังอัปโหลด...','loading');
+  try{
+    const recId = cidx >= 0 ? records[cidx].id : 'temp';
+    const result = await uploadFileToStorage(file, 'vaccines', recId);
+    curVaccines[i].file = result.name;
+    curVaccines[i].fileUrl = result.url;
+    curVaccines[i].filePath = result.path;
+    renderVaccineList();
+    showSb('อัปโหลดไฟล์สำเร็จ ✓','ok');
+  }catch(e){
+    showSb('อัปโหลดไม่สำเร็จ: ' + e.message,'err');
+  }
+  inputEl.value = '';
+}
+
+async function removeHealthFile(i){
+  if(!confirm('ลบไฟล์แนบนี้?')) return;
+  if(curHealthChecks[i].filePath){
+    await deleteFileFromStorage(curHealthChecks[i].filePath);
+  }
+  curHealthChecks[i].file = '';
+  curHealthChecks[i].fileUrl = '';
+  curHealthChecks[i].filePath = '';
+  renderHealthCheckList();
+}
+
+loadUsers();
       const t=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),4000));
       await Promise.race([p,t]);
     }catch(e){
@@ -1257,8 +1368,27 @@ function renderHealthCheckList(){
             <input value="${h.detail||''}" placeholder="เช่น ส่งพบอายุรกรรม ติดตาม 3 เดือน" onchange="curHealthChecks[${i}].detail=this.value">
           </div>
           <div class="field f1">
-            <label>ไฟล์แนบ (ชื่อไฟล์)</label>
-            <input value="${h.file||''}" placeholder="เช่น health_check_2568.pdf" onchange="curHealthChecks[${i}].file=this.value">
+            <label>ไฟล์แนบผลตรวจ</label>
+            ${h.fileUrl
+              ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                  <a href="${h.fileUrl}" target="_blank" class="file-link">
+                    <i class="ti ti-file-check" style="font-size:13px"></i>${h.file||'ดูไฟล์'}
+                  </a>
+                  <button class="file-remove" onclick="removeHealthFile(${i})" title="ลบไฟล์">
+                    <i class="ti ti-x" style="font-size:10px"></i>
+                  </button>
+                </div>`
+              : `<div style="display:flex;align-items:center;gap:6px">
+                  <label class="upload-btn" for="healthFile_${i}">
+                    <i class="ti ti-upload" style="font-size:13px"></i>อัปโหลดไฟล์
+                  </label>
+                  <input type="file" id="healthFile_${i}" 
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                    style="display:none" 
+                    onchange="uploadHealthFile(${i}, this)">
+                  <span style="font-size:11px;color:var(--text3)">PDF / รูปภาพ ≤10MB</span>
+                </div>`
+            }
           </div>
         </div>
       </div>
@@ -1554,7 +1684,7 @@ async function loadRecords(){
       trainings: trainRows2.filter(t=>t.personnel_id===r.id).map(t=>({id:t.id,name:t.name||'',type:t.type||'external',org:t.org||'',place:t.place||'',dateStart:t.date_start||'',dateEnd:t.date_end||'',hours:t.hours||0,cert:t.has_cert||false,certFile:t.cert_file||'',note:t.note||''})),
       accidents: accRows2.filter(a=>a.personnel_id===r.id).map(a=>({date:a.date||'',type:a.type||'',severity:a.severity||'',detail:a.detail||''})),
       vaccines: vacRows.filter(v=>v.personnel_id===r.id).map(v=>({id:v.id,name:v.name||'',date:v.date||'',lot:v.lot||'',antibody:v.antibody||'',antibodyDate:v.antibody_date||'',note:v.note||''})),
-      healthChecks: hcRows.filter(h=>h.personnel_id===r.id).map(h=>({id:h.id,year:h.year||'',date:h.date||'',place:h.place||'',result:h.result||'',detail:h.detail||'',file:h.file||'',_open:false})),
+      healthChecks: hcRows.filter(h=>h.personnel_id===r.id).map(h=>({id:h.id,year:h.year||'',date:h.date||'',place:h.place||'',result:h.result||'',detail:h.detail||'',file:h.file||'',fileUrl:h.file_url||'',filePath:h.file_path||'',_open:false})),
     }));
     renderStats();renderTable();
     showSb(`โหลดสำเร็จ — พบบุคลากร ${records.length} คน`,'ok');
@@ -1806,7 +1936,7 @@ async function savePanel(){
     if(curVaccines.length>0)await sbInsert('vaccines',curVaccines.map(v=>({personnel_id:recId,name:v.name||'',date:v.date||null,lot:v.lot||'',antibody:v.antibody||'',antibody_date:v.antibodyDate||null,note:v.note||''})));
     // บันทึก health_checks
     try{await sbDelete('health_checks',{personnel_id:recId});}catch(e){}
-    if(curHealthChecks.length>0)await sbInsert('health_checks',curHealthChecks.map(h=>({personnel_id:recId,year:h.year||'',date:h.date||null,place:h.place||'',result:h.result||'',detail:h.detail||'',file:h.file||''})));
+    if(curHealthChecks.length>0)await sbInsert('health_checks',curHealthChecks.map(h=>({personnel_id:recId,year:h.year||'',date:h.date||null,place:h.place||'',result:h.result||'',detail:h.detail||'',file:h.file||'',file_url:h.fileUrl||'',file_path:h.filePath||''})));
     if(isNew)records.push(local);else records[cidx]=local;
     showSb('บันทึกสำเร็จ ✓ ข้อมูลเก็บใน Supabase เรียบร้อย','ok');
     closePanel();renderStats();renderTable();

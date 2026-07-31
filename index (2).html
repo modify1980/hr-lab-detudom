@@ -963,7 +963,7 @@ td{transition:background .1s;}
           <div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">
             <div class="field f1">
               <label>คะแนน CMTE ปัจจุบัน</label>
-              <input id="fcmteScore" type="number" min="0" max="100" placeholder="เช่น 35" oninput="updateCmteProgress()">
+              <input id="fcmteScore" type="number" min="0" max="100" placeholder="เช่น 35" oninput="if(typeof updateCmteProgress==='function')updateCmteProgress()">
             </div>
             <div class="field f1">
               <label>ข้อมูล ณ วันที่</label>
@@ -979,7 +979,7 @@ td{transition:background .1s;}
             </div>
             <div class="field f1">
               <label>คะแนนขั้นต่ำที่ต้องการ</label>
-              <input id="fcmteRequired" type="number" min="0" value="50" placeholder="50" oninput="updateCmteProgress()">
+              <input id="fcmteRequired" type="number" min="0" value="50" placeholder="50" oninput="if(typeof updateCmteProgress==='function')updateCmteProgress()">
             </div>
             <div class="field f1">
               <label>สถานะ CMTE</label>
@@ -1297,7 +1297,6 @@ function updateCmteProgress(){
   }
 }
 
-loadUsers();
       const t=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),4000));
       await Promise.race([p,t]);
     }catch(e){
@@ -1427,7 +1426,6 @@ function delHealthCheck(i){
   renderHealthCheckList();
 }
 
-loadUsers();
 
 /* ===== EXPORT PDF ===== */
 function exportPDF(){
@@ -1934,7 +1932,7 @@ function clearForm(rec){
   if(fs('fcmteRequired'))fs('fcmteRequired').value=rec.cmteRequired||50;
   if(fs('fcmteStatus'))fs('fcmteStatus').value=rec.cmteStatus||'active';
   if(fs('fcmteNote'))fs('fcmteNote').value=rec.cmteNote||'';
-  setTimeout(updateCmteProgress,50);
+  setTimeout(()=>{if(typeof updateCmteProgress==='function')updateCmteProgress();},50);
   document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('active'));
   document.querySelector('.mtab[data-tab="m1"]').classList.add('active');
@@ -1995,201 +1993,7 @@ document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='E
 document.getElementById('loginId').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
 
-loadUsers();
-
-/* ===== EXPORT PDF ===== */
-function exportPDF(){
-  if(cidx < 0) return;
-  const r = records[cidx];
-  const TL2 = {gov:'ข้าราชการ',moh:'พนักงานกระทรวง',daily:'ลูกจ้างรายวัน',monthly:'ลูกจ้างรายเดือน'};
-  const BC = {gov:['#E1F5EE','#085041'],moh:['#FAEEDA','#633806'],daily:['#FBEAF0','#72243E']};
-  const c = BC[r.type]||['#E6F1FB','#0C447C'];
-  const pct = Math.round([!!r.lic,!!r.jddate,!!r.ordate,r.comp&&r.comp.length>0,true,true,true].filter(Boolean).length/7*100);
-  const fv = (v,fb='ไม่ระบุ') => v ? `<span class="pdf-field-value">${v}</span>` : `<span class="pdf-field-value empty">${fb}</span>`;
-  const fd = (v) => {
-    if(!v) return '<span class="pdf-field-value empty">ไม่ระบุ</span>';
-    try{ return '<span class="pdf-field-value">'+new Date(v).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'</span>'; }
-    catch(e){ return '<span class="pdf-field-value">'+v+'</span>'; }
-  };
-  const now = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-
-  // Avatar
-  let avHtml = r.photo
-    ? `<div class="pdf-header-av"><img src="${r.photo}" alt="${r.first}"></div>`
-    : `<div class="pdf-header-av" style="background:${c[0]};color:${c[1]}">${(r.first[0]||'')+(r.last[0]||'')}</div>`;
-
-  // Competency rows
-  let compRows = r.comp&&r.comp.length
-    ? r.comp.map(c=>`<tr>
-        <td>${c.year||'—'}</td><td>${c.method||'—'}</td><td>${c.area||'—'}</td><td>${c.evaluator||'—'}</td>
-        <td><span class="pdf-badge ${c.result==='pass'?'pass':c.result==='fail'?'fail':'pending'}">${c.result==='pass'?'ผ่าน':c.result==='fail'?'ไม่ผ่าน':'รอ'}</span></td>
-      </tr>`).join('')
-    : `<tr><td colspan="5" class="pdf-empty">ยังไม่มีข้อมูล Competency</td></tr>`;
-
-  // Training rows
-  let trainRows = r.trainings&&r.trainings.length
-    ? r.trainings.map(t=>{
-        const ds = t.dateStart ? new Date(t.dateStart).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        const typeMap = {external:'ภายนอก',internal:'ภายใน',online:'ออนไลน์'};
-        return `<tr><td>${t.name||'—'}</td><td>${typeMap[t.type]||t.type}</td><td>${t.org||'—'}</td><td>${ds}</td><td style="text-align:center">${t.hours||0}</td><td style="text-align:center">${t.cert?'✓':'—'}</td></tr>`;
-      }).join('')
-    : `<tr><td colspan="6" class="pdf-empty">ยังไม่มีประวัติการอบรม</td></tr>`;
-
-  // Accident rows
-  let accRows = r.accidents&&r.accidents.length
-    ? r.accidents.map(a=>{
-        const ds = a.date ? new Date(a.date).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        return `<tr><td>${ds}</td><td>${a.type||'—'}</td><td>${a.severity||'—'}</td><td>${a.detail||'—'}</td></tr>`;
-      }).join('')
-    : `<tr><td colspan="4" class="pdf-empty">ไม่มีประวัติอุบัติเหตุ</td></tr>`;
-
-  const html = `
-  <div class="pdf-preview" id="pdfPrintArea">
-    <div class="pdf-header">
-      ${avHtml}
-      <div style="flex:1">
-        <div class="pdf-name">${r.prefix||''} ${r.first} ${r.last}</div>
-        <div class="pdf-sub">${r.id} · ${r.pos}</div>
-        <div class="pdf-sub">${r.dept||''} · <span class="pdf-badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:10px">${TL2[r.type]||''}</span></div>
-        <div class="pdf-pct">
-          <div class="pdf-pct-bar"><div class="pdf-pct-fill" style="width:${pct}%"></div></div>
-          <span class="pdf-pct-num">${pct}%</span>
-        </div>
-      </div>
-      <div style="text-align:right;font-size:10px;opacity:.75">
-        <div>พิมพ์วันที่</div><div>${now}</div>
-        <div style="margin-top:4px" class="pdf-iso"><i class="ti ti-certificate" style="font-size:11px"></i> ISO 15189:2022</div>
-      </div>
-    </div>
-
-    <!-- ส่วนตัว -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-user"></i>ข้อมูลส่วนตัว — Clause 6.2.2</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">ชื่อ-นามสกุล</div>${fv(r.prefix+' '+r.first+' '+r.last)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">รหัสพนักงาน</div>${fv(r.id)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เลขบัตรประชาชน</div>${fv(r.idcard)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันเกิด</div>${fd(r.dob)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เบอร์โทรศัพท์</div>${fv(r.phone)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วุฒิการศึกษา</div>${fv(r.edu)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">สถาบัน</div>${fv(r.inst)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เลขที่ ท.น.</div>${fv(r.lic)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันหมดอายุ ท.น.</div>${fd(r.licExp)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันที่บรรจุ/จ้าง</div>${fd(r.date)}</div>
-      </div>
-    </div>
-
-    <!-- JD -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-file-description"></i>Job Description — Clause 6.2.2 c)</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">ตำแหน่งงาน</div>${fv(r.pos)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">สาขา/กลุ่มงาน</div>${fv(r.dept)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันที่รับทราบ JD</div>${fd(r.jddate)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เวอร์ชัน JD</div>${fv(r.jdver)}</div>
-      </div>
-      ${r.jd?`<div class="pdf-field" style="margin-top:8px"><div class="pdf-field-label">ขอบเขตหน้าที่</div><div class="pdf-field-value" style="white-space:pre-wrap;line-height:1.6">${r.jd}</div></div>`:''}
-    </div>
-
-    <!-- ปฐมนิเทศ -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-school"></i>ปฐมนิเทศ — Clause 6.2.2 d)</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">วันที่ปฐมนิเทศ</div>${fd(r.ordate)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วิทยากร</div>${fv(r.orperson)}</div>
-      </div>
-    </div>
-
-    <!-- Competency -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-clipboard-check"></i>Competency Assessment — Clause 6.2.6</div>
-      <table class="pdf-table">
-        <thead><tr><th>ปีงบประมาณ</th><th>วิธีการประเมิน</th><th>งาน/สาขา</th><th>ผู้ประเมิน</th><th>ผล</th></tr></thead>
-        <tbody>${compRows}</tbody>
-      </table>
-    </div>
-
-    <!-- อบรม -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-award"></i>ประวัติการอบรม — Clause 6.2.2 e)</div>
-      <table class="pdf-table">
-        <thead><tr><th>หลักสูตร</th><th>ประเภท</th><th>หน่วยงาน</th><th>วันที่</th><th>ชม.</th><th>ประกาศ</th></tr></thead>
-        <tbody>${trainRows}</tbody>
-      </table>
-    </div>
-
-    <!-- อุบัติเหตุ -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-alert-triangle"></i>ประวัติอุบัติเหตุ — Clause 8.8</div>
-      <table class="pdf-table">
-        <thead><tr><th>วันที่</th><th>ประเภท</th><th>ความรุนแรง</th><th>รายละเอียด</th></tr></thead>
-        <tbody>${accRows}</tbody>
-      </table>
-    </div>
-
-    <div class="pdf-footer">
-      ระบบฐานข้อมูลประวัติบุคลากร ISO 15189:2022 · ห้องปฏิบัติการทางการแพทย์เทคนิคการแพทย์ · พิมพ์วันที่ ${now}
-    </div>
-  </div>`;
-
-  document.getElementById('pdfPreviewContent').innerHTML = html;
-  document.getElementById('pdfModal').classList.add('open');
-}
-
-function doPrint(){
-  const area = document.getElementById('pdfPrintArea');
-  if(!area) return;
-  const w = window.open('','_blank','width=900,height=700');
-  w.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="UTF-8">
-    <title>Personnel File — ISO 15189</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0;}
-      body{font-family:'Sarabun',sans-serif;font-size:13px;color:#1a1a18;background:#fff;padding:1.5cm;}
-      .pdf-preview{max-width:19cm;margin:0 auto;}
-      .pdf-header{background:linear-gradient(135deg,#0C447C,#185FA5);color:#fff;padding:1rem 1.25rem;border-radius:10px;margin-bottom:1.1rem;display:flex;align-items:center;gap:12px;}
-      .pdf-header-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,.4);}
-      .pdf-header-av img{width:100%;height:100%;object-fit:cover;}
-      .pdf-name{font-size:16px;font-weight:700;margin-bottom:2px;}
-      .pdf-sub{font-size:11px;opacity:.8;margin-top:2px;}
-      .pdf-pct{display:flex;align-items:center;gap:8px;margin-top:4px;}
-      .pdf-pct-bar{flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:100px;overflow:hidden;}
-      .pdf-pct-fill{height:100%;background:#fff;border-radius:100px;}
-      .pdf-pct-num{font-size:12px;font-weight:700;color:#fff;}
-      .pdf-iso{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;margin-top:4px;}
-      .pdf-section{margin-bottom:1rem;page-break-inside:avoid;}
-      .pdf-section-title{font-size:10px;font-weight:700;color:#0C447C;text-transform:uppercase;letter-spacing:.06em;padding:.35rem .75rem;background:#E6F1FB;border-left:3px solid #185FA5;border-radius:0 6px 6px 0;margin-bottom:.55rem;}
-      .pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-      .pdf-field{padding:.4rem .65rem;background:#f8f7f5;border-radius:6px;border:.5px solid #e0ded6;}
-      .pdf-field-label{font-size:9px;color:#888;font-weight:700;margin-bottom:1px;text-transform:uppercase;letter-spacing:.04em;}
-      .pdf-field-value{font-size:12px;color:#1a1a18;font-weight:500;}
-      .pdf-field-value.empty{color:#aaa;font-style:italic;}
-      .pdf-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;}
-      .pass{background:#E1F5EE;color:#085041;border:.5px solid #9FE1CB;}
-      .fail{background:#FCEBEB;color:#A32D2D;border:.5px solid #F7C1C1;}
-      .pending{background:#FAEEDA;color:#633806;border:.5px solid #FAC775;}
-      .pdf-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:.3rem;}
-      .pdf-table th{background:linear-gradient(135deg,#1a3a5c,#185FA5);color:#fff;padding:6px 8px;text-align:left;font-weight:700;font-size:10px;}
-      .pdf-table td{padding:5px 8px;border-bottom:.5px solid #e0ded6;}
-      .pdf-table tr:nth-child(even) td{background:#f8f7f5;}
-      .pdf-empty{text-align:center;padding:.75rem;color:#aaa;font-size:11px;background:#f8f7f5;border-radius:6px;border:1px dashed #ddd;}
-      .pdf-footer{text-align:center;padding-top:.75rem;border-top:1px solid #e0ded6;font-size:9px;color:#aaa;margin-top:.85rem;}
-      @media print{
-        body{padding:.5cm;}
-        @page{size:A4;margin:1cm;}
-        .pdf-section{page-break-inside:avoid;}
-      }
-    </style>
-  </head><body>`);
-  w.document.write(area.innerHTML);
-  w.document.write('</body></html>');
-  w.document.close();
-  w.onload = () => { w.focus(); w.print(); };
-}
-
-</script>
+loadUsers();</script>
 
 <!-- PDF PREVIEW MODAL -->
 <div class="modal-overlay" id="pdfModal">

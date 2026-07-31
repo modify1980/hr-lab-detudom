@@ -963,7 +963,7 @@ td{transition:background .1s;}
           <div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">
             <div class="field f1">
               <label>คะแนน CMTE ปัจจุบัน</label>
-              <input id="fcmteScore" type="number" min="0" max="100" placeholder="เช่น 35" oninput="updateCmteProgress()">
+              <input id="fcmteScore" type="number" min="0" max="100" placeholder="เช่น 35" oninput="if(typeof updateCmteProgress==='function')updateCmteProgress()">
             </div>
             <div class="field f1">
               <label>ข้อมูล ณ วันที่</label>
@@ -979,7 +979,7 @@ td{transition:background .1s;}
             </div>
             <div class="field f1">
               <label>คะแนนขั้นต่ำที่ต้องการ</label>
-              <input id="fcmteRequired" type="number" min="0" value="50" placeholder="50" oninput="updateCmteProgress()">
+              <input id="fcmteRequired" type="number" min="0" value="50" placeholder="50" oninput="if(typeof updateCmteProgress==='function')updateCmteProgress()">
             </div>
             <div class="field f1">
               <label>สถานะ CMTE</label>
@@ -1932,7 +1932,7 @@ function clearForm(rec){
   if(fs('fcmteRequired'))fs('fcmteRequired').value=rec.cmteRequired||50;
   if(fs('fcmteStatus'))fs('fcmteStatus').value=rec.cmteStatus||'active';
   if(fs('fcmteNote'))fs('fcmteNote').value=rec.cmteNote||'';
-  setTimeout(updateCmteProgress,50);
+  setTimeout(()=>{if(typeof updateCmteProgress==='function')updateCmteProgress();},50);
   document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('active'));
   document.querySelector('.mtab[data-tab="m1"]').classList.add('active');

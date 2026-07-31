@@ -1297,7 +1297,6 @@ function updateCmteProgress(){
   }
 }
 
-loadUsers();
       const t=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),4000));
       await Promise.race([p,t]);
     }catch(e){
@@ -1330,60 +1329,35 @@ function renderVaccineList(){
   const c = document.getElementById('vaccineList');
   if(!c) return;
   if(!curVaccines.length){
-    c.innerHTML = `<div style="text-align:center;padding:1.25rem;color:var(--text2);font-size:13px;
-      border:1.5px dashed var(--green-mid);border-radius:var(--r-xl);background:var(--green-light)">
-      <i class="ti ti-vaccine" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green)"></i>
-      ยังไม่มีประวัติการฉีดวัคซีน กด "เพิ่มวัคซีน" เพื่อบันทึก</div>`;
+    c.innerHTML = '<div style="text-align:center;padding:1.25rem;color:var(--text2);font-size:13px;border:1.5px dashed var(--green-mid);border-radius:var(--r-xl);background:var(--green-light)"><i class="ti ti-vaccine" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green)"></i>ยังไม่มีประวัติการฉีดวัคซีน กด "+ เพิ่มวัคซีน" เพื่อบันทึก</div>';
     return;
   }
   c.innerHTML = curVaccines.map((v,i) => {
     const ds = v.date ? new Date(v.date).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}) : '—';
     const hasDone = !!v.date;
     const statusHtml = hasDone
-      ? `<span class="vac-status vac-done"><i class="ti ti-check" style="font-size:11px"></i>ฉีดแล้ว</span>`
-      : `<span class="vac-status vac-pending"><i class="ti ti-clock" style="font-size:11px"></i>รอกรอก</span>`;
-    return `<div class="vac-card">
-      <div class="vac-card-head">
-        <div class="vac-card-title"><i class="ti ti-vaccine"></i>${v.name||'วัคซีน'}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          ${statusHtml}
-          <button onclick="delVaccine(${i})" style="width:26px;height:26px;border:none;background:var(--red-light);color:var(--red);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:12px"></i></button>
-        </div>
-      </div>
-      <div class="vac-card-body">
-        <div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">
-          <div class="field f1">
-            <label>ชื่อวัคซีน</label>
-            <select onchange="curVaccines[${i}].name=this.value">
-              ${VAC_TYPES.map(t=>`<option ${v.name===t?'selected':''}>${t}</option>`).join('')}
-            </select>
-          </div>
-          <div class="field f1">
-            <label>วันที่ฉีด</label>
-            <input type="date" value="${v.date||''}" onchange="curVaccines[${i}].date=this.value;renderVaccineList()">
-          </div>
-          <div class="field f1">
-            <label>ล็อตวัคซีน / สถานที่</label>
-            <input value="${v.lot||''}" placeholder="เช่น โรงพยาบาลศรีนครินทร์" onchange="curVaccines[${i}].lot=this.value">
-          </div>
-          <div class="field f1">
-            <label>ผลระดับภูมิ Anti-HBs</label>
-            <input value="${v.antibody||''}" placeholder="เช่น 245 mIU/mL" onchange="curVaccines[${i}].antibody=this.value">
-          </div>
-          <div class="field f1">
-            <label>วันตรวจภูมิ</label>
-            <input type="date" value="${v.antibodyDate||''}" onchange="curVaccines[${i}].antibodyDate=this.value">
-          </div>
-          <div class="field f1">
-            <label>หมายเหตุ</label>
-            <input value="${v.note||''}" placeholder="หมายเหตุเพิ่มเติม" onchange="curVaccines[${i}].note=this.value">
-          </div>
-        </div>
-      </div>
-    </div>`;
+      ? '<span class="vac-status vac-done"><i class="ti ti-check" style="font-size:11px"></i>ฉีดแล้ว</span>'
+      : '<span class="vac-status vac-pending"><i class="ti ti-clock" style="font-size:11px"></i>รอกรอก</span>';
+    const delBtn = '<button onclick="delVaccine('+i+')" style="width:26px;height:26px;border:none;background:var(--red-light);color:var(--red);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:12px"></i></button>';
+
+    const typeOpts = VAC_TYPES.map(t => '<option' + (v.name===t?' selected':'') + '>' + t + '</option>').join('');
+
+    return '<div class="vac-card">'
+      + '<div class="vac-card-head">'
+      + '<div class="vac-card-title"><i class="ti ti-vaccine"></i>' + (v.name||'วัคซีน') + '</div>'
+      + '<div style="display:flex;align-items:center;gap:6px">' + statusHtml + delBtn + '</div>'
+      + '</div>'
+      + '<div class="vac-card-body">'
+      + '<div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">'
+      + '<div class="field f1"><label>ชื่อวัคซีน</label><select onchange="curVaccines['+i+'].name=this.value">' + typeOpts + '</select></div>'
+      + '<div class="field f1"><label>วันที่ฉีด</label><input type="date" value="' + (v.date||'') + '" onchange="curVaccines['+i+'].date=this.value;renderVaccineList()"></div>'
+      + '<div class="field f1"><label>ล็อตวัคซีน / สถานที่</label><input value="' + (v.lot||'') + '" placeholder="เช่น โรงพยาบาลศรีนครินทร์" onchange="curVaccines['+i+'].lot=this.value"></div>'
+      + '<div class="field f1"><label>ผลระดับภูมิ Anti-HBs</label><input value="' + (v.antibody||'') + '" placeholder="เช่น 245 mIU/mL" onchange="curVaccines['+i+'].antibody=this.value"></div>'
+      + '<div class="field f1"><label>วันตรวจภูมิ</label><input type="date" value="' + (v.antibodyDate||'') + '" onchange="curVaccines['+i+'].antibodyDate=this.value"></div>'
+      + '<div class="field f1"><label>หมายเหตุ</label><input value="' + (v.note||'') + '" placeholder="หมายเหตุเพิ่มเติม" onchange="curVaccines['+i+'].note=this.value"></div>'
+      + '</div></div></div>';
   }).join('');
 }
-
 function addVaccine(){
   curVaccines.push({name:'HBV (ไวรัสตับอักเสบบี) เข็ม 1',date:'',lot:'',antibody:'',antibodyDate:'',note:''});
   renderVaccineList();
@@ -1400,78 +1374,40 @@ function renderHealthCheckList(){
   const c = document.getElementById('healthCheckList');
   if(!c) return;
   if(!curHealthChecks.length){
-    c.innerHTML = `<div style="text-align:center;padding:1.25rem;color:var(--text2);font-size:13px;
-      border:1.5px dashed var(--green-mid);border-radius:var(--r-xl);background:var(--green-light)">
-      <i class="ti ti-stethoscope" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green)"></i>
-      ยังไม่มีผลตรวจสุขภาพ กด "เพิ่มผลตรวจ" เพื่อบันทึก</div>`;
+    c.innerHTML = '<div style="text-align:center;padding:1.25rem;color:var(--text2);font-size:13px;border:1.5px dashed var(--green-mid);border-radius:var(--r-xl);background:var(--green-light)"><i class="ti ti-stethoscope" style="font-size:22px;display:block;margin-bottom:6px;color:var(--green)"></i>ยังไม่มีผลตรวจสุขภาพ กด "+ เพิ่มผลตรวจ" เพื่อบันทึก</div>';
     return;
   }
   c.innerHTML = curHealthChecks.map((h,i) => {
     const ds = h.date ? new Date(h.date).toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'}) : '—';
     const isOpen = h._open;
-    return `<div class="health-year-card">
-      <div class="health-year-head ${isOpen?'open':''}" onclick="toggleHealthCheck(${i})">
-        <div class="health-year-title">
-          <i class="ti ti-calendar-check"></i>
-          ปี ${h.year||'—'} ${h.date?`<span style="font-size:11px;font-weight:400;color:var(--text2)">· ตรวจวันที่ ${ds}</span>`:''}
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          ${h.result?`<span class="health-result-chip"><i class="ti ti-check" style="font-size:11px"></i>${h.result.length>15?h.result.substring(0,15)+'...':h.result}</span>`:''}
-          <button onclick="event.stopPropagation();delHealthCheck(${i})" style="width:26px;height:26px;border:none;background:var(--red-light);color:var(--red);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:12px"></i></button>
-          <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text3);transition:transform .2s;${isOpen?'transform:rotate(180deg)':''}"></i>
-        </div>
-      </div>
-      <div class="health-year-body ${isOpen?'open':''}">
-        <div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">
-          <div class="field f1">
-            <label>ปีที่ตรวจ (พ.ศ.)</label>
-            <input value="${h.year||''}" placeholder="เช่น 2568" onchange="curHealthChecks[${i}].year=this.value;renderHealthCheckList()">
-          </div>
-          <div class="field f1">
-            <label>วันที่ตรวจ</label>
-            <input type="date" value="${h.date||''}" onchange="curHealthChecks[${i}].date=this.value;renderHealthCheckList()">
-          </div>
-          <div class="field f1">
-            <label>สถานที่ตรวจ</label>
-            <input value="${h.place||''}" placeholder="เช่น โรงพยาบาลสมเด็จฯ" onchange="curHealthChecks[${i}].place=this.value">
-          </div>
-          <div class="field f3">
-            <label>ผลสรุปสุขภาพ</label>
-            <input value="${h.result||''}" placeholder="เช่น ปกติทุกอย่าง / พบน้ำตาลสูงเล็กน้อย" onchange="curHealthChecks[${i}].result=this.value;renderHealthCheckList()">
-          </div>
-          <div class="field f3">
-            <label>รายละเอียดเพิ่มเติม / การส่งต่อ</label>
-            <input value="${h.detail||''}" placeholder="เช่น ส่งพบอายุรกรรม ติดตาม 3 เดือน" onchange="curHealthChecks[${i}].detail=this.value">
-          </div>
-          <div class="field f1">
-            <label>ไฟล์แนบผลตรวจ</label>
-            ${h.fileUrl
-              ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                  <a href="${h.fileUrl}" target="_blank" class="file-link">
-                    <i class="ti ti-file-check" style="font-size:13px"></i>${h.file||'ดูไฟล์'}
-                  </a>
-                  <button class="file-remove" onclick="removeHealthFile(${i})" title="ลบไฟล์">
-                    <i class="ti ti-x" style="font-size:10px"></i>
-                  </button>
-                </div>`
-              : `<div style="display:flex;align-items:center;gap:6px">
-                  <label class="upload-btn" for="healthFile_${i}">
-                    <i class="ti ti-upload" style="font-size:13px"></i>อัปโหลดไฟล์
-                  </label>
-                  <input type="file" id="healthFile_${i}" 
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
-                    style="display:none" 
-                    onchange="uploadHealthFile(${i}, this)">
-                  <span style="font-size:11px;color:var(--text3)">PDF / รูปภาพ ≤10MB</span>
-                </div>`
-            }
-          </div>
-        </div>
-      </div>
-    </div>`;
+    const yearTitle = 'ปี ' + (h.year||'—') + (h.date ? ' <span style="font-size:11px;font-weight:400;color:var(--text2)">· ตรวจวันที่ ' + ds + '</span>' : '');
+    const resultChip = h.result ? '<span class="health-result-chip"><i class="ti ti-check" style="font-size:11px"></i>' + (h.result.length>15 ? h.result.substring(0,15)+'...' : h.result) + '</span>' : '';
+    const delBtn = '<button onclick="event.stopPropagation();delHealthCheck('+i+')" style="width:26px;height:26px;border:none;background:var(--red-light);color:var(--red);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-x" style="font-size:12px"></i></button>';
+    const chevron = '<i class="ti ti-chevron-down" style="font-size:13px;color:var(--text3);transition:transform .2s;' + (isOpen?'transform:rotate(180deg)':'') + '"></i>';
+
+    let fileHtml = '';
+    if(h.fileUrl){
+      fileHtml = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><a href="' + h.fileUrl + '" target="_blank" class="file-link"><i class="ti ti-file-check" style="font-size:13px"></i>' + (h.file||'ดูไฟล์') + '</a><button class="file-remove" onclick="removeHealthFile('+i+')" title="ลบไฟล์"><i class="ti ti-x" style="font-size:10px"></i></button></div>';
+    } else {
+      fileHtml = '<div style="display:flex;align-items:center;gap:6px"><label class="upload-btn" for="healthFile_'+i+'"><i class="ti ti-upload" style="font-size:13px"></i>อัปโหลดไฟล์</label><input type="file" id="healthFile_'+i+'" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="uploadHealthFile('+i+', this)"><span style="font-size:11px;color:var(--text3)">PDF / รูปภาพ ≤10MB</span></div>';
+    }
+
+    return '<div class="health-year-card">'
+      + '<div class="health-year-head ' + (isOpen?'open':'') + '" onclick="toggleHealthCheck('+i+')">'
+      + '<div class="health-year-title"><i class="ti ti-calendar-check"></i>' + yearTitle + '</div>'
+      + '<div style="display:flex;align-items:center;gap:6px">' + resultChip + delBtn + chevron + '</div>'
+      + '</div>'
+      + '<div class="health-year-body ' + (isOpen?'open':'') + '">'
+      + '<div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">'
+      + '<div class="field f1"><label>ปีที่ตรวจ (พ.ศ.)</label><input value="' + (h.year||'') + '" placeholder="เช่น 2568" onchange="curHealthChecks['+i+'].year=this.value;renderHealthCheckList()"></div>'
+      + '<div class="field f1"><label>วันที่ตรวจ</label><input type="date" value="' + (h.date||'') + '" onchange="curHealthChecks['+i+'].date=this.value;renderHealthCheckList()"></div>'
+      + '<div class="field f1"><label>สถานที่ตรวจ</label><input value="' + (h.place||'') + '" placeholder="เช่น โรงพยาบาลสมเด็จฯ" onchange="curHealthChecks['+i+'].place=this.value"></div>'
+      + '<div class="field f3"><label>ผลสรุปสุขภาพ</label><input value="' + (h.result||'') + '" placeholder="เช่น ปกติทุกอย่าง" onchange="curHealthChecks['+i+'].result=this.value;renderHealthCheckList()"></div>'
+      + '<div class="field f3"><label>รายละเอียดเพิ่มเติม / การส่งต่อ</label><input value="' + (h.detail||'') + '" placeholder="เช่น ส่งพบอายุรกรรม" onchange="curHealthChecks['+i+'].detail=this.value"></div>'
+      + '<div class="field f1"><label>ไฟล์แนบผลตรวจ</label>' + fileHtml + '</div>'
+      + '</div></div></div>';
   }).join('');
 }
-
 function toggleHealthCheck(i){
   curHealthChecks[i]._open = !curHealthChecks[i]._open;
   renderHealthCheckList();
@@ -1490,7 +1426,6 @@ function delHealthCheck(i){
   renderHealthCheckList();
 }
 
-loadUsers();
 
 /* ===== EXPORT PDF ===== */
 function exportPDF(){
@@ -2058,201 +1993,7 @@ document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='E
 document.getElementById('loginId').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}));
 
-loadUsers();
-
-/* ===== EXPORT PDF ===== */
-function exportPDF(){
-  if(cidx < 0) return;
-  const r = records[cidx];
-  const TL2 = {gov:'ข้าราชการ',moh:'พนักงานกระทรวง',daily:'ลูกจ้างรายวัน',monthly:'ลูกจ้างรายเดือน'};
-  const BC = {gov:['#E1F5EE','#085041'],moh:['#FAEEDA','#633806'],daily:['#FBEAF0','#72243E']};
-  const c = BC[r.type]||['#E6F1FB','#0C447C'];
-  const pct = Math.round([!!r.lic,!!r.jddate,!!r.ordate,r.comp&&r.comp.length>0,true,true,true].filter(Boolean).length/7*100);
-  const fv = (v,fb='ไม่ระบุ') => v ? `<span class="pdf-field-value">${v}</span>` : `<span class="pdf-field-value empty">${fb}</span>`;
-  const fd = (v) => {
-    if(!v) return '<span class="pdf-field-value empty">ไม่ระบุ</span>';
-    try{ return '<span class="pdf-field-value">'+new Date(v).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+'</span>'; }
-    catch(e){ return '<span class="pdf-field-value">'+v+'</span>'; }
-  };
-  const now = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-
-  // Avatar
-  let avHtml = r.photo
-    ? `<div class="pdf-header-av"><img src="${r.photo}" alt="${r.first}"></div>`
-    : `<div class="pdf-header-av" style="background:${c[0]};color:${c[1]}">${(r.first[0]||'')+(r.last[0]||'')}</div>`;
-
-  // Competency rows
-  let compRows = r.comp&&r.comp.length
-    ? r.comp.map(c=>`<tr>
-        <td>${c.year||'—'}</td><td>${c.method||'—'}</td><td>${c.area||'—'}</td><td>${c.evaluator||'—'}</td>
-        <td><span class="pdf-badge ${c.result==='pass'?'pass':c.result==='fail'?'fail':'pending'}">${c.result==='pass'?'ผ่าน':c.result==='fail'?'ไม่ผ่าน':'รอ'}</span></td>
-      </tr>`).join('')
-    : `<tr><td colspan="5" class="pdf-empty">ยังไม่มีข้อมูล Competency</td></tr>`;
-
-  // Training rows
-  let trainRows = r.trainings&&r.trainings.length
-    ? r.trainings.map(t=>{
-        const ds = t.dateStart ? new Date(t.dateStart).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        const typeMap = {external:'ภายนอก',internal:'ภายใน',online:'ออนไลน์'};
-        return `<tr><td>${t.name||'—'}</td><td>${typeMap[t.type]||t.type}</td><td>${t.org||'—'}</td><td>${ds}</td><td style="text-align:center">${t.hours||0}</td><td style="text-align:center">${t.cert?'✓':'—'}</td></tr>`;
-      }).join('')
-    : `<tr><td colspan="6" class="pdf-empty">ยังไม่มีประวัติการอบรม</td></tr>`;
-
-  // Accident rows
-  let accRows = r.accidents&&r.accidents.length
-    ? r.accidents.map(a=>{
-        const ds = a.date ? new Date(a.date).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        return `<tr><td>${ds}</td><td>${a.type||'—'}</td><td>${a.severity||'—'}</td><td>${a.detail||'—'}</td></tr>`;
-      }).join('')
-    : `<tr><td colspan="4" class="pdf-empty">ไม่มีประวัติอุบัติเหตุ</td></tr>`;
-
-  const html = `
-  <div class="pdf-preview" id="pdfPrintArea">
-    <div class="pdf-header">
-      ${avHtml}
-      <div style="flex:1">
-        <div class="pdf-name">${r.prefix||''} ${r.first} ${r.last}</div>
-        <div class="pdf-sub">${r.id} · ${r.pos}</div>
-        <div class="pdf-sub">${r.dept||''} · <span class="pdf-badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:10px">${TL2[r.type]||''}</span></div>
-        <div class="pdf-pct">
-          <div class="pdf-pct-bar"><div class="pdf-pct-fill" style="width:${pct}%"></div></div>
-          <span class="pdf-pct-num">${pct}%</span>
-        </div>
-      </div>
-      <div style="text-align:right;font-size:10px;opacity:.75">
-        <div>พิมพ์วันที่</div><div>${now}</div>
-        <div style="margin-top:4px" class="pdf-iso"><i class="ti ti-certificate" style="font-size:11px"></i> ISO 15189:2022</div>
-      </div>
-    </div>
-
-    <!-- ส่วนตัว -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-user"></i>ข้อมูลส่วนตัว — Clause 6.2.2</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">ชื่อ-นามสกุล</div>${fv(r.prefix+' '+r.first+' '+r.last)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">รหัสพนักงาน</div>${fv(r.id)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เลขบัตรประชาชน</div>${fv(r.idcard)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันเกิด</div>${fd(r.dob)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เบอร์โทรศัพท์</div>${fv(r.phone)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วุฒิการศึกษา</div>${fv(r.edu)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">สถาบัน</div>${fv(r.inst)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เลขที่ ท.น.</div>${fv(r.lic)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันหมดอายุ ท.น.</div>${fd(r.licExp)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันที่บรรจุ/จ้าง</div>${fd(r.date)}</div>
-      </div>
-    </div>
-
-    <!-- JD -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-file-description"></i>Job Description — Clause 6.2.2 c)</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">ตำแหน่งงาน</div>${fv(r.pos)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">สาขา/กลุ่มงาน</div>${fv(r.dept)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วันที่รับทราบ JD</div>${fd(r.jddate)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">เวอร์ชัน JD</div>${fv(r.jdver)}</div>
-      </div>
-      ${r.jd?`<div class="pdf-field" style="margin-top:8px"><div class="pdf-field-label">ขอบเขตหน้าที่</div><div class="pdf-field-value" style="white-space:pre-wrap;line-height:1.6">${r.jd}</div></div>`:''}
-    </div>
-
-    <!-- ปฐมนิเทศ -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-school"></i>ปฐมนิเทศ — Clause 6.2.2 d)</div>
-      <div class="pdf-grid">
-        <div class="pdf-field"><div class="pdf-field-label">วันที่ปฐมนิเทศ</div>${fd(r.ordate)}</div>
-        <div class="pdf-field"><div class="pdf-field-label">วิทยากร</div>${fv(r.orperson)}</div>
-      </div>
-    </div>
-
-    <!-- Competency -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-clipboard-check"></i>Competency Assessment — Clause 6.2.6</div>
-      <table class="pdf-table">
-        <thead><tr><th>ปีงบประมาณ</th><th>วิธีการประเมิน</th><th>งาน/สาขา</th><th>ผู้ประเมิน</th><th>ผล</th></tr></thead>
-        <tbody>${compRows}</tbody>
-      </table>
-    </div>
-
-    <!-- อบรม -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-award"></i>ประวัติการอบรม — Clause 6.2.2 e)</div>
-      <table class="pdf-table">
-        <thead><tr><th>หลักสูตร</th><th>ประเภท</th><th>หน่วยงาน</th><th>วันที่</th><th>ชม.</th><th>ประกาศ</th></tr></thead>
-        <tbody>${trainRows}</tbody>
-      </table>
-    </div>
-
-    <!-- อุบัติเหตุ -->
-    <div class="pdf-section">
-      <div class="pdf-section-title"><i class="ti ti-alert-triangle"></i>ประวัติอุบัติเหตุ — Clause 8.8</div>
-      <table class="pdf-table">
-        <thead><tr><th>วันที่</th><th>ประเภท</th><th>ความรุนแรง</th><th>รายละเอียด</th></tr></thead>
-        <tbody>${accRows}</tbody>
-      </table>
-    </div>
-
-    <div class="pdf-footer">
-      ระบบฐานข้อมูลประวัติบุคลากร ISO 15189:2022 · ห้องปฏิบัติการทางการแพทย์เทคนิคการแพทย์ · พิมพ์วันที่ ${now}
-    </div>
-  </div>`;
-
-  document.getElementById('pdfPreviewContent').innerHTML = html;
-  document.getElementById('pdfModal').classList.add('open');
-}
-
-function doPrint(){
-  const area = document.getElementById('pdfPrintArea');
-  if(!area) return;
-  const w = window.open('','_blank','width=900,height=700');
-  w.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="UTF-8">
-    <title>Personnel File — ISO 15189</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0;}
-      body{font-family:'Sarabun',sans-serif;font-size:13px;color:#1a1a18;background:#fff;padding:1.5cm;}
-      .pdf-preview{max-width:19cm;margin:0 auto;}
-      .pdf-header{background:linear-gradient(135deg,#0C447C,#185FA5);color:#fff;padding:1rem 1.25rem;border-radius:10px;margin-bottom:1.1rem;display:flex;align-items:center;gap:12px;}
-      .pdf-header-av{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;overflow:hidden;border:2px solid rgba(255,255,255,.4);}
-      .pdf-header-av img{width:100%;height:100%;object-fit:cover;}
-      .pdf-name{font-size:16px;font-weight:700;margin-bottom:2px;}
-      .pdf-sub{font-size:11px;opacity:.8;margin-top:2px;}
-      .pdf-pct{display:flex;align-items:center;gap:8px;margin-top:4px;}
-      .pdf-pct-bar{flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:100px;overflow:hidden;}
-      .pdf-pct-fill{height:100%;background:#fff;border-radius:100px;}
-      .pdf-pct-num{font-size:12px;font-weight:700;color:#fff;}
-      .pdf-iso{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;margin-top:4px;}
-      .pdf-section{margin-bottom:1rem;page-break-inside:avoid;}
-      .pdf-section-title{font-size:10px;font-weight:700;color:#0C447C;text-transform:uppercase;letter-spacing:.06em;padding:.35rem .75rem;background:#E6F1FB;border-left:3px solid #185FA5;border-radius:0 6px 6px 0;margin-bottom:.55rem;}
-      .pdf-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-      .pdf-field{padding:.4rem .65rem;background:#f8f7f5;border-radius:6px;border:.5px solid #e0ded6;}
-      .pdf-field-label{font-size:9px;color:#888;font-weight:700;margin-bottom:1px;text-transform:uppercase;letter-spacing:.04em;}
-      .pdf-field-value{font-size:12px;color:#1a1a18;font-weight:500;}
-      .pdf-field-value.empty{color:#aaa;font-style:italic;}
-      .pdf-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;}
-      .pass{background:#E1F5EE;color:#085041;border:.5px solid #9FE1CB;}
-      .fail{background:#FCEBEB;color:#A32D2D;border:.5px solid #F7C1C1;}
-      .pending{background:#FAEEDA;color:#633806;border:.5px solid #FAC775;}
-      .pdf-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:.3rem;}
-      .pdf-table th{background:linear-gradient(135deg,#1a3a5c,#185FA5);color:#fff;padding:6px 8px;text-align:left;font-weight:700;font-size:10px;}
-      .pdf-table td{padding:5px 8px;border-bottom:.5px solid #e0ded6;}
-      .pdf-table tr:nth-child(even) td{background:#f8f7f5;}
-      .pdf-empty{text-align:center;padding:.75rem;color:#aaa;font-size:11px;background:#f8f7f5;border-radius:6px;border:1px dashed #ddd;}
-      .pdf-footer{text-align:center;padding-top:.75rem;border-top:1px solid #e0ded6;font-size:9px;color:#aaa;margin-top:.85rem;}
-      @media print{
-        body{padding:.5cm;}
-        @page{size:A4;margin:1cm;}
-        .pdf-section{page-break-inside:avoid;}
-      }
-    </style>
-  </head><body>`);
-  w.document.write(area.innerHTML);
-  w.document.write('</body></html>');
-  w.document.close();
-  w.onload = () => { w.focus(); w.print(); };
-}
-
-</script>
+loadUsers();</script>
 
 <!-- PDF PREVIEW MODAL -->
 <div class="modal-overlay" id="pdfModal">

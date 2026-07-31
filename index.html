@@ -945,6 +945,57 @@ td{transition:background .1s;}
           </div>
           <div class="field f1"><label>วันที่บรรจุ/จ้าง</label><input id="fdate" type="date"></div>
         </div>
+        <div class="slabel"><i class="ti ti-award"></i>คะแนน CMTE (Continuing Medical Technology Education)</div>
+        <div style="background:linear-gradient(135deg,#E6F1FB,#EEF8F4);border:1.5px solid var(--blue-mid);border-radius:var(--r-xl);padding:1rem 1.25rem;margin-bottom:.5rem;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.85rem;flex-wrap:wrap">
+            <div style="background:var(--blue);color:#fff;border-radius:var(--r-lg);padding:.5rem 1.25rem;text-align:center;min-width:100px">
+              <div style="font-size:11px;opacity:.85;font-weight:600">คะแนนสะสม</div>
+              <div id="cmteTotal" style="font-size:28px;font-weight:700;line-height:1.1">0</div>
+              <div style="font-size:10px;opacity:.75">/ 50 คะแนน (5 ปี)</div>
+            </div>
+            <div style="flex:1;min-width:180px">
+              <div id="cmteProgressWrap" style="height:10px;background:rgba(24,95,165,.15);border-radius:100px;overflow:hidden;margin-bottom:6px">
+                <div id="cmteProgressBar" style="height:100%;border-radius:100px;background:linear-gradient(90deg,#185FA5,#0F6E56);transition:width .4s;width:0%"></div>
+              </div>
+              <div id="cmteStatus" style="font-size:12px;font-weight:600;color:var(--blue)">กรอกข้อมูลเพื่อคำนวณ</div>
+            </div>
+          </div>
+          <div class="fg3" style="border:none;box-shadow:none;padding:0;background:transparent">
+            <div class="field f1">
+              <label>คะแนน CMTE ปัจจุบัน</label>
+              <input id="fcmteScore" type="number" min="0" max="100" placeholder="เช่น 35" oninput="updateCmteProgress()">
+            </div>
+            <div class="field f1">
+              <label>ข้อมูล ณ วันที่</label>
+              <input id="fcmteDate" type="date">
+            </div>
+            <div class="field f1">
+              <label>วันต่ออายุใบอนุญาต</label>
+              <input id="fcmteRenew" type="date">
+            </div>
+            <div class="field f1">
+              <label>รอบการต่ออายุ (ปี พ.ศ.)</label>
+              <input id="fcmtePeriod" placeholder="เช่น 2566-2570">
+            </div>
+            <div class="field f1">
+              <label>คะแนนขั้นต่ำที่ต้องการ</label>
+              <input id="fcmteRequired" type="number" min="0" value="50" placeholder="50" oninput="updateCmteProgress()">
+            </div>
+            <div class="field f1">
+              <label>สถานะ CMTE</label>
+              <select id="fcmteStatus">
+                <option value="active">กำลังสะสม</option>
+                <option value="complete">ครบแล้ว</option>
+                <option value="expired">หมดอายุ</option>
+                <option value="na">ไม่เกี่ยวข้อง</option>
+              </select>
+            </div>
+            <div class="field f3">
+              <label>หมายเหตุ CMTE</label>
+              <input id="fcmteNote" placeholder="เช่น รอยื่นต่ออายุ / ส่งเอกสารแล้ว">
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="mpane" id="m2">
@@ -1219,6 +1270,31 @@ async function removeHealthFile(i){
   curHealthChecks[i].fileUrl = '';
   curHealthChecks[i].filePath = '';
   renderHealthCheckList();
+}
+
+
+/* ===== CMTE PROGRESS ===== */
+function updateCmteProgress(){
+  const score = parseFloat(document.getElementById('fcmteScore')?.value||0)||0;
+  const required = parseFloat(document.getElementById('fcmteRequired')?.value||50)||50;
+  const pct = Math.min(100, Math.round(score/required*100));
+  const bar = document.getElementById('cmteProgressBar');
+  const total = document.getElementById('cmteTotal');
+  const status = document.getElementById('cmteStatus');
+  if(bar) bar.style.width = pct+'%';
+  if(total) total.textContent = score;
+  if(status){
+    if(score >= required){
+      bar.style.background='linear-gradient(90deg,#0F6E56,#1D9E75)';
+      status.style.color='var(--green)';
+      status.textContent='✅ ครบ '+required+' คะแนนแล้ว พร้อมต่ออายุ';
+    } else {
+      const remain = required - score;
+      bar.style.background='linear-gradient(90deg,#185FA5,#1a7fc1)';
+      status.style.color='var(--blue)';
+      status.textContent='ต้องการอีก '+remain+' คะแนน ('+pct+'%)';
+    }
+  }
 }
 
 loadUsers();
@@ -1678,7 +1754,11 @@ async function loadRecords(){
       dept:r.department||'เคมีคลินิก',edu:r.education||'',inst:r.institute||'',
       lic:r.license_no||'',licExp:r.license_exp||'',date:r.hire_date||'',
       phone:r.phone||'',idcard:r.id_card||'',dob:r.dob||'',addr:r.address||'',
-      photo:r.photo_url||null,jd:r.jd||'',jddate:r.jd_date||'',jdver:r.jd_version||'',
+      photo:r.photo_url||null,
+      cmteScore:r.cmte_score||'',cmteDate:r.cmte_date||'',cmteRenew:r.cmte_renew||'',
+      cmtePeriod:r.cmte_period||'',cmteRequired:r.cmte_required||50,
+      cmteStatus:r.cmte_status||'active',cmteNote:r.cmte_note||'',
+      jd:r.jd||'',jddate:r.jd_date||'',jdver:r.jd_version||'',
       ordate:r.ori_date||'',orperson:r.ori_person||'',
       comp: compRows2.filter(c=>c.personnel_id===r.id).map(c=>({year:c.year||'',method:c.method||'',area:c.area||'',evaluator:c.evaluator||'',result:c.result||'pending'})),
       trainings: trainRows2.filter(t=>t.personnel_id===r.id).map(t=>({id:t.id,name:t.name||'',type:t.type||'external',org:t.org||'',place:t.place||'',dateStart:t.date_start||'',dateEnd:t.date_end||'',hours:t.hours||0,cert:t.has_cert||false,certFile:t.cert_file||'',note:t.note||''})),
@@ -1908,6 +1988,16 @@ function clearForm(rec){
   curAcc=JSON.parse(JSON.stringify(rec.accidents||[]));renderAcc();
   curTrain=JSON.parse(JSON.stringify(rec.trainings||[]));rT();
   oriDone=oriTopics.map(()=>true);renderOri();
+  // CMTE
+  const fs=id=>document.getElementById(id);
+  if(fs('fcmteScore'))fs('fcmteScore').value=rec.cmteScore||'';
+  if(fs('fcmteDate'))fs('fcmteDate').value=rec.cmteDate||'';
+  if(fs('fcmteRenew'))fs('fcmteRenew').value=rec.cmteRenew||'';
+  if(fs('fcmtePeriod'))fs('fcmtePeriod').value=rec.cmtePeriod||'';
+  if(fs('fcmteRequired'))fs('fcmteRequired').value=rec.cmteRequired||50;
+  if(fs('fcmteStatus'))fs('fcmteStatus').value=rec.cmteStatus||'active';
+  if(fs('fcmteNote'))fs('fcmteNote').value=rec.cmteNote||'';
+  setTimeout(updateCmteProgress,50);
   document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('active'));
   document.querySelector('.mtab[data-tab="m1"]').classList.add('active');
@@ -1922,8 +2012,22 @@ async function savePanel(){
   if(!first||!last||!pos){alert('กรุณากรอก ชื่อ นามสกุล และตำแหน่ง');return;}
   const isNew=cidx===-2;
   const recId=isNew?(document.getElementById('f3').value.trim()||'P'+Date.now()):records[cidx].id;
-  const local={id:recId,_dbId:recId,prefix:document.getElementById('f0').value,first,last,idcard:document.getElementById('f4').value,dob:document.getElementById('f5').value,addr:document.getElementById('f6').value,phone:document.getElementById('f7').value,edu:document.getElementById('f8').value,inst:document.getElementById('f9').value,lic:document.getElementById('f10').value,licExp:document.getElementById('f11').value,pos,dept:document.getElementById('fdept').value,type:document.getElementById('ftype').value,date:document.getElementById('fdate').value,jd:document.getElementById('fjd').value,jddate:document.getElementById('fjddate').value,jdver:document.getElementById('fjdver').value,ordate:document.getElementById('fordate').value,orperson:document.getElementById('forperson').value,comp:curComp,accidents:curAcc,trainings:curTrain,vaccines:curVaccines,healthChecks:curHealthChecks,licFile:'',jdFile:'',photo:curPh};
-  const dbRow={id:recId,prefix:local.prefix,first_name:local.first,last_name:local.last,position:local.pos,department:local.dept,emp_type:local.type,hire_date:local.date||null,phone:local.phone,id_card:local.idcard,dob:local.dob||null,address:local.addr,education:local.edu,institute:local.inst,license_no:local.lic,license_exp:local.licExp||null,jd:local.jd,jd_date:local.jddate||null,jd_version:local.jdver,ori_date:local.ordate||null,ori_person:local.orperson,photo_url:local.photo||null};
+  const local={id:recId,_dbId:recId,prefix:document.getElementById('f0').value,first,last,idcard:document.getElementById('f4').value,dob:document.getElementById('f5').value,addr:document.getElementById('f6').value,phone:document.getElementById('f7').value,edu:document.getElementById('f8').value,inst:document.getElementById('f9').value,lic:document.getElementById('f10').value,licExp:document.getElementById('f11').value,pos,dept:document.getElementById('fdept').value,type:document.getElementById('ftype').value,date:document.getElementById('fdate').value,jd:document.getElementById('fjd').value,jddate:document.getElementById('fjddate').value,jdver:document.getElementById('fjdver').value,ordate:document.getElementById('fordate').value,orperson:document.getElementById('forperson').value,comp:curComp,accidents:curAcc,trainings:curTrain,vaccines:curVaccines,healthChecks:curHealthChecks,
+    cmteScore:document.getElementById('fcmteScore')?.value||'',
+    cmteDate:document.getElementById('fcmteDate')?.value||'',
+    cmteRenew:document.getElementById('fcmteRenew')?.value||'',
+    cmtePeriod:document.getElementById('fcmtePeriod')?.value||'',
+    cmteRequired:document.getElementById('fcmteRequired')?.value||50,
+    cmteStatus:document.getElementById('fcmteStatus')?.value||'active',
+    cmteNote:document.getElementById('fcmteNote')?.value||'',licFile:'',jdFile:'',photo:curPh};
+  const dbRow={id:recId,prefix:local.prefix,first_name:local.first,last_name:local.last,position:local.pos,department:local.dept,emp_type:local.type,hire_date:local.date||null,phone:local.phone,id_card:local.idcard,dob:local.dob||null,address:local.addr,education:local.edu,institute:local.inst,license_no:local.lic,license_exp:local.licExp||null,jd:local.jd,jd_date:local.jddate||null,jd_version:local.jdver,ori_date:local.ordate||null,ori_person:local.orperson,photo_url:local.photo||null,
+    cmte_score:local.cmteScore||null,
+    cmte_date:local.cmteDate||null,
+    cmte_renew:local.cmteRenew||null,
+    cmte_period:local.cmtePeriod||'',
+    cmte_required:local.cmteRequired||50,
+    cmte_status:local.cmteStatus||'active',
+    cmte_note:local.cmteNote||''};
   try{
     showSb('กำลังบันทึกข้อมูลไปยัง Supabase...','loading');
     await sbUpsert('personnel',dbRow);
